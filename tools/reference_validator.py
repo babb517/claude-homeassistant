@@ -397,6 +397,12 @@ class ReferenceValidator:
                                 entity_name = config["name"].lower().replace(" ", "_")
                                 config_entities.add(f"{domain}.{entity_name}")
 
+            # Extract input helpers (input_boolean, input_number, input_text, etc)
+            for domain in ["input_boolean", "input_number", "input_text", "input_select", "input_datetime"]:
+                if domain in data and isinstance(data[domain], dict):
+                    for entity_key in data[domain].keys():
+                        config_entities.add(f"{domain}.{entity_key}")
+
             self._config_entities = config_entities
             return config_entities
 
