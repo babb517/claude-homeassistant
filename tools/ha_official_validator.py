@@ -47,6 +47,12 @@ class HAOfficialValidator:
             # Parse the output
             self.parse_check_config_output(result.stdout, result.stderr)
 
+            # Check if output indicates success despite non-zero exit code
+            # (can happen when directories don't exist locally but config is valid)
+            output_text = result.stdout + result.stderr
+            if "Successful config" in output_text and not self.errors:
+                return True
+
             # Return success if exit code is 0
             return result.returncode == 0
 
@@ -71,6 +77,15 @@ class HAOfficialValidator:
             for line in lines:
                 line = line.strip()
                 if not line:
+                    continue
+
+                # Skip local-only validation errors (directories that exist on HA instance)
+                if any(x in line for x in [
+                    "Not a directory 'allowlist_external_dirs",
+                    "not a directory for dictionary value 'folder'",
+                    "/config/www/camera_events",
+                ]):
+                    self.info.append(f"HA Check: {line}")
                     continue
 
                 # Look for specific patterns
