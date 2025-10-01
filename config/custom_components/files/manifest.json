@@ -1,0 +1,10 @@
+{
+    "domain": "files",
+    "name": "Files in a Folder",
+    "documentation": "https://github.com/TarheelGrad1998/files",
+    "issue_tracker": "https://github.com/TarheelGrad1998/files/issues",
+    "dependencies": [],
+    "requirements": [],
+    "codeowners": ["@TarheelGrad1998"],
+    "version": "1.5"
+  }

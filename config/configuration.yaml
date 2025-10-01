@@ -102,7 +102,7 @@ climate:
   - platform: generic_thermostat
     name: Family Room Fireplace
     heater: switch.fireplace_sonoff_4ch_relay_4
-    target_sensor: sensor.ndck_temperature_2
+    target_sensor: sensor.zone_02_temperature
 
 template:
   - sensor:
@@ -121,20 +121,20 @@ template:
         device_class: power
         state: >
             {{ [0, states('sensor.envoy_202224097524_current_power_production') | int - states('sensor.envoy_202224097524_current_power_consumption') | int ] | max }}
-  - sensor: 
+  - sensor:
         name: Family Room Temperature
         state_class: measurement
-        device_class: temperature      
-        unit_of_measurement: F 
+        device_class: temperature
+        unit_of_measurement: F
         state: >
-          {{ state_attr('climate.family_room', 'current_temperature') | float }}
-  - sensor: 
+          {{ state_attr('climate.zone_02', 'current_temperature') | float }}
+  - sensor:
         name: Master Fireplace Target Temperature
         state_class: measurement
-        device_class: temperature      
-        unit_of_measurement: F 
+        device_class: temperature
+        unit_of_measurement: F
         state: >
-          {{ state_attr('climate.bedroom', 'temperature') | float }}
+          {{ state_attr('climate.zone_01', 'temperature') | float }}
   - sensor:
         name: Home State
         state: >
@@ -171,7 +171,7 @@ template:
   - binary_sensor:
         name: Spa On
         state: >
-          {{ states('sensor.spa_2_1_1min') | float > 50 }}
+          {{ states('sensor.spa_2_1min') | float > 50 }}
 
 input_boolean:
   sleep_mode:
@@ -181,6 +181,9 @@ input_boolean:
     name: Anyone Home
   chicken_lights_override:
     name: Chicken Lights Override
+  tortilla_too_cold:
+    name: Tortilla Too Cold
+    icon: mdi:thermometer-alert
 
 sensor:
   - platform: integration

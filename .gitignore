@@ -90,9 +90,6 @@ config/.google.token
 config/nest/
 config/.cloud/
 
-# Custom components (managed by HACS)
-config/custom_components/
-
 # Personal configuration that shouldn't be shared
 config/known_devices.yaml
 config/automations_backup/

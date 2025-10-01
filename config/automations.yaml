@@ -44,7 +44,7 @@
     hours: '*'
   condition:
   - condition: numeric_state
-    entity_id: sensor.home_realfeel_temperature
+    entity_id: sensor.home_temperature
     below: 55
   action:
   - service: switch.turn_on
@@ -62,63 +62,13 @@
     seconds: '0'
   condition:
   - condition: numeric_state
-    entity_id: sensor.home_realfeel_temperature
+    entity_id: sensor.home_temperature
     above: 55
   action:
   - service: switch.turn_off
     data: {}
     target:
       entity_id: switch.porch_margaret
-  mode: single
-- id: '1676045547295'
-  alias: Turn On Family Room Heater
-  description: ''
-  trigger:
-  - platform: time_pattern
-    hours: '*'
-    minutes: /1
-    seconds: '0'
-  condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: climate.fireplace
-      attribute: hvac_action
-      state: heating
-    - condition: numeric_state
-      entity_id: sensor.fireplace_temperature_ecobee_cloud
-      below: 67
-  action:
-  - service: switch.turn_on
-    data: {}
-    target:
-      entity_id: switch.family_room_wemo
-  mode: single
-- id: '1676045591055'
-  alias: Turn Off Family Room Heater
-  description: ''
-  trigger:
-  - platform: time_pattern
-    hours: '*'
-    minutes: /1
-    seconds: '0'
-  condition:
-  - condition: and
-    conditions:
-    - condition: numeric_state
-      entity_id: sensor.fireplace_temperature_ecobee_cloud
-      above: 67
-    - condition: not
-      conditions:
-      - condition: state
-        entity_id: climate.fireplace
-        attribute: hvac_action
-        state: heating
-  action:
-  - service: switch.turn_off
-    data: {}
-    target:
-      entity_id: switch.family_room_wemo
   mode: single
 - id: '1681684323983'
   alias: Thermostat
@@ -135,7 +85,7 @@
       - condition: or
         conditions:
         - condition: state
-          entity_id: climate.bedroom
+          entity_id: climate.zone_01
           attribute: hvac_action
           state: cooling
         - condition: numeric_state
@@ -144,45 +94,45 @@
       sequence:
       - type: turn_on
         device_id: 5171ba1d70efa83500d13bf2257e875c
-        entity_id: switch.hvac_relay_sonoff_4ch_relay_1
+        entity_id: switch.fireplace_sonoff_4ch_relay_1
         domain: switch
     default:
     - type: turn_off
       device_id: 5171ba1d70efa83500d13bf2257e875c
-      entity_id: switch.hvac_relay_sonoff_4ch_relay_1
+      entity_id: switch.fireplace_sonoff_4ch_relay_1
       domain: switch
   - choose:
     - conditions:
       - condition: state
-        entity_id: climate.family_room
+        entity_id: climate.zone_02
         attribute: hvac_action
         state: cooling
       sequence:
       - type: turn_on
         device_id: 5171ba1d70efa83500d13bf2257e875c
-        entity_id: switch.hvac_relay_sonoff_4ch_relay_2
+        entity_id: switch.fireplace_sonoff_4ch_relay_2
         domain: switch
     default:
     - type: turn_off
       device_id: 5171ba1d70efa83500d13bf2257e875c
-      entity_id: switch.hvac_relay_sonoff_4ch_relay_2
+      entity_id: switch.fireplace_sonoff_4ch_relay_2
       domain: switch
     enabled: true
   - choose:
     - conditions:
       - condition: state
-        entity_id: climate.living_room
+        entity_id: climate.zone_03
         attribute: hvac_action
         state: cooling
       sequence:
       - type: turn_on
         device_id: 5171ba1d70efa83500d13bf2257e875c
-        entity_id: switch.hvac_relay_sonoff_4ch_relay_3
+        entity_id: switch.fireplace_sonoff_4ch_relay_3
         domain: switch
     default:
     - type: turn_off
       device_id: 5171ba1d70efa83500d13bf2257e875c
-      entity_id: switch.hvac_relay_sonoff_4ch_relay_3
+      entity_id: switch.fireplace_sonoff_4ch_relay_3
       domain: switch
   mode: single
 - id: '1696230038474'
@@ -305,31 +255,6 @@
     target:
       entity_id: input_boolean.sleep_mode
   mode: single
-- &id001
-  id: '1701740670783'
-  alias: Turn on Chicken Lights
-  description: ''
-  trigger:
-  - platform: time_pattern
-    hours: '*'
-    minutes: '*'
-    seconds: /30
-  condition:
-  - condition: sun
-    after: sunset
-    before: sunrise
-  - condition: state
-    entity_id: input_boolean.chicken_lights_override
-    state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id:
-      - light.chicken_coop_floodlight
-      - light.field_floodlight
-  mode: single
-- *id001
 - id: '1701836561180'
   alias: Arm Alarm
   description: ''
@@ -390,78 +315,6 @@
     data: {}
     target:
       entity_id: light.exterior_porch_sconces
-  mode: single
-- id: '1703908874952'
-  alias: Disarm Button
-  description: ''
-  trigger:
-  - device_id: 19d997737bdb701c01c0ad291f8e784b
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: remote_button_short_press
-  condition:
-  - condition: and
-    conditions:
-    - condition: device
-      type: is_off
-      device_id: e7c1ebf88c690b4692d629efe79aea40
-      entity_id: bb2ab9c170718d97cd01379f8a5f9604
-      domain: switch
-    - condition: device
-      device_id: e7c1ebf88c690b4692d629efe79aea40
-      domain: alarm_control_panel
-      entity_id: e3e72298c0d9cd2ba18e41c41d703136
-      type: is_armed_home
-  action:
-  - device_id: e7c1ebf88c690b4692d629efe79aea40
-    domain: alarm_control_panel
-    entity_id: e3e72298c0d9cd2ba18e41c41d703136
-    type: disarm
-  mode: single
-- id: '1703908978875'
-  alias: Arm Button
-  description: ''
-  trigger:
-  - device_id: 19d997737bdb701c01c0ad291f8e784b
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: remote_button_short_press
-  condition:
-  - condition: and
-    conditions:
-    - condition: device
-      type: is_off
-      device_id: e7c1ebf88c690b4692d629efe79aea40
-      entity_id: bb2ab9c170718d97cd01379f8a5f9604
-      domain: switch
-    - condition: device
-      device_id: e7c1ebf88c690b4692d629efe79aea40
-      domain: alarm_control_panel
-      entity_id: e3e72298c0d9cd2ba18e41c41d703136
-      type: is_disarmed
-  action:
-  - device_id: e7c1ebf88c690b4692d629efe79aea40
-    domain: alarm_control_panel
-    entity_id: e3e72298c0d9cd2ba18e41c41d703136
-    type: arm_home
-  mode: single
-- id: '1704096626621'
-  alias: Barn Toggle Button
-  description: ''
-  trigger:
-  - device_id: 205a3d181eb080db18b8ca7371cae5b1
-    domain: zha
-    platform: device
-    type: remote_button_short_press
-    subtype: remote_button_short_press
-  condition: []
-  action:
-  - service: switch.toggle
-    data: {}
-    target:
-      entity_id: switch.exterior_barn
   mode: single
 - id: '1704341256725'
   alias: Keep couch on
@@ -639,19 +492,6 @@
     entity_id: 5575353c0bebf9632120472f131f67e5
     type: set_hvac_mode
     hvac_mode: heat_cool
-  mode: single
-- id: '1722918442886'
-  alias: Speed Test
-  description: ''
-  trigger:
-  - platform: time_pattern
-    minutes: /15
-  condition: []
-  action:
-  - service: homeassistant.update_entity
-    data: {}
-    target:
-      device_id: 3a50ef9f15b7985ea4ee122b3b2e951e
   mode: single
 - id: '1726806323506'
   alias: Alarm Lights
