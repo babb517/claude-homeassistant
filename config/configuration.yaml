@@ -1,62 +1,292 @@
-# Example Home Assistant Configuration File
-# This is a minimal example configuration for demonstration purposes
-
-# Basic Home Assistant configuration
-homeassistant:
-  name: Home
-  latitude: 37.7749
-  longitude: -122.4194
-  elevation: 0
-  unit_system: metric
-  currency: USD
-  country: US
-  time_zone: America/Los_Angeles
-
-# Load frontend
-frontend:
-
-# Enable configuration panel
 config:
+history:
+energy:
+logger:
+sun:
+system_health:
+input_number:
 
-# Enable the map panel
-map:
+# Device Discovery
+hardware:
+bluetooth:
+ssdp:
+dhcp:
+zeroconf:
+usb:
+network:
 
-# Enable mobile app integration
 mobile_app:
 
-# Enable history and logbook
-history:
-logbook:
+# Load frontend themes from the themes folder
+frontend:
+  themes: !include_dir_merge_named themes
+  extra_module_url:
+    - /hacsfiles/lovelace-card-mod/card-mod.js
 
-# Enable system health
-system_health:
+# Text to speech
+tts:
+  - platform: google_translate
 
-# Include automations and scripts
 automation: !include automations.yaml
 script: !include scripts.yaml
 scene: !include scenes.yaml
 
-# Example integrations
-weather:
-  - platform: met
-    name: Local Weather
+# logger:
+#   default: info
 
-# Example groups
-group:
-  living_room:
-    name: "Living Room"
-    entities:
-      - light.living_room_main
-      - switch.living_room_fan
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/apexcharts-card/apexcharts-card.js
+      type: module
 
-# Example sensors
+    - url: /hacsfiles/lovelace-layout-card/layout-card.js
+      type: module
+
+    - url: /hacsfiles/ha-floorplan/floorplan.js
+      type: module
+
+    - url: /hacsfiles/zigbee2mqtt-networkmap/zigbee2mqtt-networkmap.js
+      type: module
+      
+    - url: /hacsfiles/history-explorer-card/history-explorer-card.js
+      type: module
+      
+    - url: /hacsfiles/gallery-card/gallery-card.js 
+      type: module
+      
+    - url: /hacsfiles/scheduler-card/scheduler-card.js 
+      type: module
+
+mqtt:
+  sensor:
+    - name: Zigbee2mqtt Networkmap
+      # if you change base_topic of Zigbee2mqtt, change state_topic accordingly
+      state_topic: zigbee2mqtt/bridge/response/networkmap
+      value_template: >-
+        {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
+      # again, if you change base_topic of Zigbee2mqtt, change json_attributes_topic accordingly
+      json_attributes_topic: zigbee2mqtt/bridge/response/networkmap
+      json_attributes_template: "{{ value_json.data.value | tojson }}"
+
+http:
+  server_port: 80
+  use_x_forwarded_for: true
+  trusted_proxies:
+    - 192.168.1.1
+    - 216.139.13.142
+
+api:
+
+influxdb:
+   api_version: 2
+   host: 192.168.1.7
+   port: 443
+   ssl: true
+   verify_ssl: false
+   max_retries: 3
+   organization: "Rainbow Ranch"
+   bucket: "homeassistant"
+   token: "RvlB8kfmdUSAmGB_VHtpXSFifrG8oYIQOrYx0vX4gBoxQxyEPWIdH6BTBCmukkvecbOZFYC5GlvAoLwnEepdMA=="
+
+homeassistant:
+    allowlist_external_dirs:
+     - "/config/www/camera_events"
+
+# python_script:
+
+# debugpy:
+#   start: false
+
+climate:
+  - platform: generic_thermostat
+    name: Family Room Fireplace
+    heater: switch.fireplace_sonoff_4ch_relay_4
+    target_sensor: sensor.ndck_temperature_2
+
+template:
+  - sensor:
+        name: Grid Import Power
+        state_class: measurement
+        icon: mdi:transmission-tower
+        unit_of_measurement: W
+        device_class: power
+        state: >
+            {{ [0, states('sensor.envoy_202224097524_current_power_consumption') | int - states('sensor.envoy_202224097524_current_power_production') | int ] | max }}
+  - sensor:
+        name: Grid Export Power
+        state_class: measurement
+        icon: mdi:transmission-tower
+        unit_of_measurement: W
+        device_class: power
+        state: >
+            {{ [0, states('sensor.envoy_202224097524_current_power_production') | int - states('sensor.envoy_202224097524_current_power_consumption') | int ] | max }}
+  - sensor: 
+        name: Family Room Temperature
+        state_class: measurement
+        device_class: temperature      
+        unit_of_measurement: F 
+        state: >
+          {{ state_attr('climate.family_room', 'current_temperature') | float }}
+  - sensor: 
+        name: Master Fireplace Target Temperature
+        state_class: measurement
+        device_class: temperature      
+        unit_of_measurement: F 
+        state: >
+          {{ state_attr('climate.bedroom', 'temperature') | float }}
+  - sensor:
+        name: Home State
+        state: >
+          {% if states('input_boolean.anyone_home') == 'off' %} Away
+          {% elif states('input_boolean.sleep_mode') == 'on' %} Sleep
+          {% else %} Home
+          {% endif %}
+
+  - binary_sensor:
+        name: Tortilla Heating On
+        state: >
+          {{ states('sensor.tortilla_31a_10_1min') | float > 400 }}
+
+  - binary_sensor:
+        name: Tortilla too cold
+        state: >
+          {{ states('sensor.tortilla_temperature') | float < 70 }}
+
+  - binary_sensor:
+        name: Tortilla sensor problem
+        state: >
+          {{ states('sensor.tortilla_temperature') in ['unavailable', 'unknown', 'none'] }}
+
+  - binary_sensor:
+        name: Furnace Fan On
+        state: >
+          {{ states('sensor.furnace_22_13_1min') | float > 50 }}
+
+  - binary_sensor:
+        name: Well On
+        state: >
+          {{ states('sensor.well_19_4_1min') | float > 50 }}
+
+  - binary_sensor:
+        name: Spa On
+        state: >
+          {{ states('sensor.spa_2_1_1min') | float > 50 }}
+
+input_boolean:
+  sleep_mode:
+    name: Sleep Mode
+    icon: mdi:sleep
+  anyone_home:
+    name: Anyone Home
+  chicken_lights_override:
+    name: Chicken Lights Override
+
 sensor:
-  - platform: time_date
-    display_options:
-      - 'time'
-      - 'date'
+  - platform: integration
+    name: Grid Import Energy
+    source: sensor.grid_import_power
+    unit_prefix: k
+    unit_time: h
+    method: left
+    
+  - platform: integration
+    name: Grid Export Energy
+    source: sensor.grid_export_power
+    unit_prefix: k
+    unit_time: h
+    method: left
+    
+  - platform: files
+    folder: '/config/www/camera_events/Animal Images'
+    filter: '*.jpg'
+    name: camera_events_animal
+    sort: date
+    max_age_seconds: 172800
+    
+  - platform: files
+    folder: '/config/www/camera_events/Person Images'
+    filter: '*.jpg'
+    name: camera_events_person
+    sort: date
+    max_age_seconds: 172800
 
-# Example binary sensors
-binary_sensor:
-  - platform: workday
-    country: US
+  - platform: files
+    folder: '/config/www/camera_events/Vehicle Images'
+    filter: '*.jpg'
+    name: camera_events_vehicle
+    sort: date
+    max_age_seconds: 172800
+
+  - platform: files
+    folder: '/config/www/camera_events/Porch Images'
+    filter: '*.jpg'
+    name: camera_events_porch
+    sort: date
+    max_age_seconds: 172800
+
+  - platform: files
+    folder: '/config/www/camera_events/Dog Run Images'
+    filter: '*.jpg'
+    name: camera_events_dog_run
+    sort: date
+    max_age_seconds: 172800
+
+  - platform: files
+    folder: '/config/www/camera_events/Driveway Images'
+    filter: '*.jpg'
+    name: camera_events_driveway
+    sort: date
+    max_age_seconds: 172800
+    
+  - platform: files
+    folder: '/config/www/camera_events/Shed Images'
+    filter: '*.jpg'
+    name: camera_events_shed
+    sort: date
+    max_age_seconds: 172800
+
+  - platform: files
+    folder: '/config/www/camera_events/Chicken Coop Images'
+    filter: '*.jpg'
+    name: camera_events_chicken_coop
+    sort: date
+    max_age_seconds: 172800
+
+  - platform: files
+    folder: '/config/www/camera_events/Backyard Images'
+    filter: '*.jpg'
+    name: camera_events_backyard
+    sort: date
+    max_age_seconds: 172800
+
+  - platform: files
+    folder: '/config/www/camera_events/Field Images'
+    filter: '*.jpg'
+    name: camera_events_field
+    sort: date    
+    max_age_seconds: 172800
+    
+  - platform: files
+    folder: '/config/www/camera_events/Living Room Images'
+    filter: '*.jpg'
+    name: camera_events_living_room
+    sort: date    
+    max_age_seconds: 172800
+
+# Example configuration.yaml entry
+alert:
+  tortilla_temperature:
+    name: Tortilla is too cold! 
+    done_message: Tortilla is warming up
+    entity_id: input_boolean.tortilla_too_cold
+    state: "on"
+    repeat: 30
+    can_acknowledge: true
+    skip_first: false
+    notifiers:
+      - mobile_app_joes_phone
+      - mobile_app_alyssas_iphone_2    
+    
+shell_command:
+  clean_camera_events: 'find /config/www/camera_events/ -type f -mtime +3 -exec rm {} \;'  

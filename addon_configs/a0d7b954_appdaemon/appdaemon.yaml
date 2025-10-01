@@ -1,0 +1,15 @@
+---
+secrets: /homeassistant/secrets.yaml
+appdaemon:
+  latitude: 37.004123
+  longitude: -121.572904
+  elevation: 61
+  time_zone: America/Los_Angeles
+  plugins:
+    HASS:
+      type: hass
+http:
+  url: http://127.0.0.1:5050
+admin:
+api:
+hadashboard:

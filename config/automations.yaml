@@ -1,51 +1,724 @@
-# Example Home Assistant Automations
-# These are example automations showcasing common patterns
-
-- id: 'example_motion_lights'
-  alias: 'Example: Motion Activated Lights'
-  description: 'Turn on lights when motion is detected'
+- id: '1672898256416'
+  alias: Reload Vue
+  description: ''
   trigger:
-    - platform: state
-      entity_id: binary_sensor.living_room_motion
-      to: 'on'
+  - platform: time_pattern
+    minutes: '5'
   condition:
+  - condition: or
+    conditions:
     - condition: state
-      entity_id: sun.sun
-      state: 'below_horizon'
+      entity_id: sensor.home_123_1min
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+    - condition: state
+      entity_id: sensor.dryer_13_9_1min
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+    - condition: state
+      entity_id: sensor.tortilla_31a_10_1min
+      state: unavailable
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
   action:
-    - service: light.turn_on
-      target:
-        entity_id: light.living_room_main
-      data:
-        brightness_pct: 75
-
-- id: 'example_schedule_lights'
-  alias: 'Example: Evening Light Schedule'
-  description: 'Turn on evening lights at sunset'
+  - service: homeassistant.reload_config_entry
+    data: {}
+    target:
+      entity_id: sensor.home_123_1min
+  mode: single
+- id: '1675636691742'
+  alias: Turn on Margaret Heat
+  description: ''
   trigger:
-    - platform: sun
-      event: sunset
-      offset: "-00:30:00"
-  action:
-    - service: light.turn_on
-      target:
-        area_id: living_room
-      data:
-        brightness_pct: 50
-
-- id: 'example_device_notification'
-  alias: 'Example: Low Battery Notification'
-  description: 'Notify when device battery is low'
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.phone_battery_level
-      below: 20
+  - platform: time_pattern
+    minutes: /5
+    seconds: '0'
+    hours: '*'
   condition:
-    - condition: time
-      after: '09:00:00'
-      before: '22:00:00'
+  - condition: numeric_state
+    entity_id: sensor.home_realfeel_temperature
+    below: 55
   action:
-    - service: notify.mobile_app
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.porch_margaret
+  mode: single
+- id: '1675636915835'
+  alias: Turn off Margaret Heat
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /5
+    hours: '*'
+    seconds: '0'
+  condition:
+  - condition: numeric_state
+    entity_id: sensor.home_realfeel_temperature
+    above: 55
+  action:
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.porch_margaret
+  mode: single
+- id: '1676045547295'
+  alias: Turn On Family Room Heater
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '*'
+    minutes: /1
+    seconds: '0'
+  condition:
+  - condition: or
+    conditions:
+    - condition: state
+      entity_id: climate.fireplace
+      attribute: hvac_action
+      state: heating
+    - condition: numeric_state
+      entity_id: sensor.fireplace_temperature_ecobee_cloud
+      below: 67
+  action:
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.family_room_wemo
+  mode: single
+- id: '1676045591055'
+  alias: Turn Off Family Room Heater
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '*'
+    minutes: /1
+    seconds: '0'
+  condition:
+  - condition: and
+    conditions:
+    - condition: numeric_state
+      entity_id: sensor.fireplace_temperature_ecobee_cloud
+      above: 67
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: climate.fireplace
+        attribute: hvac_action
+        state: heating
+  action:
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.family_room_wemo
+  mode: single
+- id: '1681684323983'
+  alias: Thermostat
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '*'
+    minutes: /1
+    seconds: '0'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: climate.bedroom
+          attribute: hvac_action
+          state: cooling
+        - condition: numeric_state
+          entity_id: sensor.lumi_lumi_weather_temperature_2
+          above: 73
+      sequence:
+      - type: turn_on
+        device_id: 5171ba1d70efa83500d13bf2257e875c
+        entity_id: switch.hvac_relay_sonoff_4ch_relay_1
+        domain: switch
+    default:
+    - type: turn_off
+      device_id: 5171ba1d70efa83500d13bf2257e875c
+      entity_id: switch.hvac_relay_sonoff_4ch_relay_1
+      domain: switch
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: climate.family_room
+        attribute: hvac_action
+        state: cooling
+      sequence:
+      - type: turn_on
+        device_id: 5171ba1d70efa83500d13bf2257e875c
+        entity_id: switch.hvac_relay_sonoff_4ch_relay_2
+        domain: switch
+    default:
+    - type: turn_off
+      device_id: 5171ba1d70efa83500d13bf2257e875c
+      entity_id: switch.hvac_relay_sonoff_4ch_relay_2
+      domain: switch
+    enabled: true
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: climate.living_room
+        attribute: hvac_action
+        state: cooling
+      sequence:
+      - type: turn_on
+        device_id: 5171ba1d70efa83500d13bf2257e875c
+        entity_id: switch.hvac_relay_sonoff_4ch_relay_3
+        domain: switch
+    default:
+    - type: turn_off
+      device_id: 5171ba1d70efa83500d13bf2257e875c
+      entity_id: switch.hvac_relay_sonoff_4ch_relay_3
+      domain: switch
+  mode: single
+- id: '1696230038474'
+  alias: Clean Camera Events
+  description: ''
+  trigger:
+  - platform: time
+    at: 01:00:00
+  condition: []
+  action:
+  - service: shell_command.clean_camera_events
+    data: {}
+  mode: single
+- id: '1699230768082'
+  alias: Alarm Status Light
+  description: ''
+  trigger:
+  - platform: device
+    device_id: e7c1ebf88c690b4692d629efe79aea40
+    domain: alarm_control_panel
+    entity_id: e3e72298c0d9cd2ba18e41c41d703136
+    type: armed_home
+  - platform: device
+    device_id: e7c1ebf88c690b4692d629efe79aea40
+    domain: alarm_control_panel
+    entity_id: e3e72298c0d9cd2ba18e41c41d703136
+    type: armed_away
+  - platform: device
+    device_id: e7c1ebf88c690b4692d629efe79aea40
+    domain: alarm_control_panel
+    entity_id: e3e72298c0d9cd2ba18e41c41d703136
+    type: disarmed
+  - platform: time_pattern
+    hours: '*'
+    minutes: /1
+    seconds: '0'
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: or
+        conditions:
+        - condition: device
+          device_id: e7c1ebf88c690b4692d629efe79aea40
+          domain: alarm_control_panel
+          entity_id: e3e72298c0d9cd2ba18e41c41d703136
+          type: is_armed_home
+        - condition: device
+          device_id: e7c1ebf88c690b4692d629efe79aea40
+          domain: alarm_control_panel
+          entity_id: e3e72298c0d9cd2ba18e41c41d703136
+          type: is_armed_away
+      sequence:
+      - service: light.turn_on
+        data:
+          rgb_color:
+          - 227
+          - 36
+          - 0
+          brightness: 2
+        target:
+          device_id: e7b7766cd294a6d9284e5ef32b264602
+    - conditions:
+      - condition: device
+        device_id: e7c1ebf88c690b4692d629efe79aea40
+        domain: alarm_control_panel
+        entity_id: e3e72298c0d9cd2ba18e41c41d703136
+        type: is_disarmed
+      sequence:
+      - service: light.turn_on
+        data:
+          rgb_color:
+          - 0
+          - 86
+          - 214
+          brightness: 2
+        target:
+          device_id: e7b7766cd294a6d9284e5ef32b264602
+    default:
+    - service: light.turn_on
       data:
-        title: "Low Battery Alert"
-        message: "Your phone battery is at {{ states('sensor.phone_battery_level') }}%"
+        rgb_color:
+        - 255
+        - 252
+        - 65
+        brightness: 5
+      target:
+        device_id: e7b7766cd294a6d9284e5ef32b264602
+  mode: single
+- id: '1701057277523'
+  alias: Turn fireplace off
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - climate.family_room_fireplace
+    to: heat
+    for:
+      hours: 2
+      minutes: 0
+      seconds: 0
+  condition: []
+  action:
+  - service: climate.set_hvac_mode
+    data:
+      hvac_mode: 'off'
+    target:
+      entity_id: climate.family_room_fireplace
+  mode: single
+- id: '1701410513984'
+  alias: Turn off sleep
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.sleep_mode
+  mode: single
+- &id001
+  id: '1701740670783'
+  alias: Turn on Chicken Lights
+  description: ''
+  trigger:
+  - platform: time_pattern
+    hours: '*'
+    minutes: '*'
+    seconds: /30
+  condition:
+  - condition: sun
+    after: sunset
+    before: sunrise
+  - condition: state
+    entity_id: input_boolean.chicken_lights_override
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.chicken_coop_floodlight
+      - light.field_floodlight
+  mode: single
+- *id001
+- id: '1701836561180'
+  alias: Arm Alarm
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.anyone_home
+    from: 'on'
+    to: 'off'
+  condition: []
+  action:
+  - service: alarm_control_panel.alarm_arm_away
+    data: {}
+    target:
+      entity_id: alarm_control_panel.home_alarm
+  mode: single
+- id: '1701836589468'
+  alias: Disarm Alarm
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.anyone_home
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: alarm_control_panel.alarm_disarm
+    data: {}
+    target:
+      entity_id: alarm_control_panel.home_alarm
+  mode: single
+- id: '1701840145699'
+  alias: Turn Off Chicken Override
+  description: ''
+  trigger:
+  - platform: time
+    at: 07:00:00
+  condition: []
+  action:
+  - service: input_boolean.turn_off
+    data: {}
+    target:
+      entity_id: input_boolean.chicken_lights_override
+  mode: single
+- id: '1703894682625'
+  alias: Keep Porch On
+  description: ''
+  trigger:
+  - platform: time_pattern
+    seconds: /15
+  condition:
+  - condition: state
+    entity_id: light.exterior_porch_sconces
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.exterior_porch_sconces
+  mode: single
+- id: '1703908874952'
+  alias: Disarm Button
+  description: ''
+  trigger:
+  - device_id: 19d997737bdb701c01c0ad291f8e784b
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: remote_button_short_press
+  condition:
+  - condition: and
+    conditions:
+    - condition: device
+      type: is_off
+      device_id: e7c1ebf88c690b4692d629efe79aea40
+      entity_id: bb2ab9c170718d97cd01379f8a5f9604
+      domain: switch
+    - condition: device
+      device_id: e7c1ebf88c690b4692d629efe79aea40
+      domain: alarm_control_panel
+      entity_id: e3e72298c0d9cd2ba18e41c41d703136
+      type: is_armed_home
+  action:
+  - device_id: e7c1ebf88c690b4692d629efe79aea40
+    domain: alarm_control_panel
+    entity_id: e3e72298c0d9cd2ba18e41c41d703136
+    type: disarm
+  mode: single
+- id: '1703908978875'
+  alias: Arm Button
+  description: ''
+  trigger:
+  - device_id: 19d997737bdb701c01c0ad291f8e784b
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: remote_button_short_press
+  condition:
+  - condition: and
+    conditions:
+    - condition: device
+      type: is_off
+      device_id: e7c1ebf88c690b4692d629efe79aea40
+      entity_id: bb2ab9c170718d97cd01379f8a5f9604
+      domain: switch
+    - condition: device
+      device_id: e7c1ebf88c690b4692d629efe79aea40
+      domain: alarm_control_panel
+      entity_id: e3e72298c0d9cd2ba18e41c41d703136
+      type: is_disarmed
+  action:
+  - device_id: e7c1ebf88c690b4692d629efe79aea40
+    domain: alarm_control_panel
+    entity_id: e3e72298c0d9cd2ba18e41c41d703136
+    type: arm_home
+  mode: single
+- id: '1704096626621'
+  alias: Barn Toggle Button
+  description: ''
+  trigger:
+  - device_id: 205a3d181eb080db18b8ca7371cae5b1
+    domain: zha
+    platform: device
+    type: remote_button_short_press
+    subtype: remote_button_short_press
+  condition: []
+  action:
+  - service: switch.toggle
+    data: {}
+    target:
+      entity_id: switch.exterior_barn
+  mode: single
+- id: '1704341256725'
+  alias: Keep couch on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - switch.sonoff_s40lite_switch_2
+    to: 'off'
+  - platform: time_pattern
+    minutes: /5
+  condition: []
+  action:
+  - service: switch.turn_on
+    data: {}
+    target:
+      device_id: 5a962c5a9365822aac2b2f504eff0fa1
+  mode: single
+- id: '1705034663571'
+  alias: Turn on Living Room Lights
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.living_room_person
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: light.living_room_main_lights
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data:
+      brightness_pct: 30
+    target:
+      entity_id: light.living_room_main_lights
+  mode: single
+- id: '1705034864686'
+  alias: Back Door Triggers Pool Flood Lights
+  description: ''
+  trigger:
+  - type: opened
+    platform: device
+    device_id: a0408b048619ff47e295b0278cccf72b
+    entity_id: 3709801895a80bab87e2df0e9c1532a0
+    domain: binary_sensor
+  condition:
+  - condition: device
+    type: is_off
+    device_id: 6dd9cf2eece820ae99133a240fd42b46
+    entity_id: 49c8d40f07743f7b1dbd571b5f27f181
+    domain: light
+  - condition: sun
+    after: sunset
+    before: sunrise
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.exterior_pool_flood_lights
+  mode: single
+- id: '1705034990316'
+  alias: Front Door Triggers Dog Run Lights
+  description: ''
+  trigger:
+  - type: opened
+    platform: device
+    device_id: 1c04f03de4de1f1eee40c547ff6ecf08
+    entity_id: ad75d8bb9f031b81a8f1653a2da5600d
+    domain: binary_sensor
+  condition:
+  - condition: sun
+    after: sunset
+    before: sunrise
+  - condition: state
+    entity_id: light.exterior_dog_run_lights
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.exterior_dog_run_lights
+  mode: single
+- id: '1705035062623'
+  alias: Front Door Triggers Parking Light
+  description: ''
+  trigger:
+  - type: opened
+    platform: device
+    device_id: 1c04f03de4de1f1eee40c547ff6ecf08
+    entity_id: ad75d8bb9f031b81a8f1653a2da5600d
+    domain: binary_sensor
+  condition:
+  - condition: sun
+    after: sunset
+    before: sunrise
+  - condition: state
+    entity_id: light.exterior_parking_flood_light
+    state: 'off'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id: light.exterior_parking_flood_light
+  mode: single
+- id: '1705995113757'
+  alias: Tortilla Low Temperature Warning
+  description: ''
+  triggers:
+  - hours: '*'
+    minutes: /30
+    trigger: time_pattern
+  - trigger: state
+    entity_id:
+    - sensor.tortilla_temperature
+  conditions:
+  - condition: numeric_state
+    entity_id: sensor.tortilla_temperature
+    below: 80
+  actions:
+  - data:
+      message: Tortilla is {{ states("sensor.tortilla_temperature") }} degrees!
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+    action: notify.mobile_app_joes_personal_phone
+  mode: single
+- id: '1708001613347'
+  alias: Disable HVAC when fireplace turns on
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - climate.bedroom_fireplace
+    - climate.family_room_fireplace
+    from: 'off'
+    to: heat
+  condition: []
+  action:
+  - device_id: fdd66dcd4fe965ed7ea20c5e7d9ab8b0
+    domain: climate
+    entity_id: 9cff2f2cfd20a3f72c9daf53bcf1ff99
+    type: set_hvac_mode
+    hvac_mode: 'off'
+  - device_id: 6932ea1bffe0c25d688c4ec0897db4f6
+    domain: climate
+    entity_id: 56c5f655efce705eeb5301b884edf125
+    type: set_hvac_mode
+    hvac_mode: 'off'
+  - device_id: 2f675b028ef1221f17500d77499be51a
+    domain: climate
+    entity_id: 5575353c0bebf9632120472f131f67e5
+    type: set_hvac_mode
+    hvac_mode: 'off'
+  - delay:
+      hours: 0
+      minutes: 10
+      seconds: 0
+      milliseconds: 0
+  - device_id: fdd66dcd4fe965ed7ea20c5e7d9ab8b0
+    domain: climate
+    entity_id: 9cff2f2cfd20a3f72c9daf53bcf1ff99
+    type: set_hvac_mode
+    hvac_mode: heat_cool
+  - device_id: 6932ea1bffe0c25d688c4ec0897db4f6
+    domain: climate
+    entity_id: 56c5f655efce705eeb5301b884edf125
+    type: set_hvac_mode
+    hvac_mode: heat_cool
+  - device_id: 2f675b028ef1221f17500d77499be51a
+    domain: climate
+    entity_id: 5575353c0bebf9632120472f131f67e5
+    type: set_hvac_mode
+    hvac_mode: heat_cool
+  mode: single
+- id: '1722918442886'
+  alias: Speed Test
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /15
+  condition: []
+  action:
+  - service: homeassistant.update_entity
+    data: {}
+    target:
+      device_id: 3a50ef9f15b7985ea4ee122b3b2e951e
+  mode: single
+- id: '1726806323506'
+  alias: Alarm Lights
+  description: ''
+  trigger:
+  - platform: device
+    device_id: e7c1ebf88c690b4692d629efe79aea40
+    domain: alarm_control_panel
+    entity_id: e3e72298c0d9cd2ba18e41c41d703136
+    type: triggered
+  condition: []
+  action:
+  - service: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      area_id:
+      - dining_room
+      - exterior
+      - family_room
+      - hallway
+      - kitchen
+      - laundry_room
+      - living_room
+      - master_bathroom
+      - master_bedroom
+      - office
+  mode: single
+- id: '1735798690501'
+  alias: Kittens
+  description: ''
+  triggers:
+  - type: temperature
+    device_id: 07694a8058f9c7f7f1b975e87982e2af
+    entity_id: ff2810547eba7d5d698f9df4bbff82cc
+    domain: sensor
+    trigger: device
+    below: 67
+    for:
+      hours: 0
+      minutes: 5
+      seconds: 0
+  conditions: []
+  actions:
+  - action: climate.set_temperature
+    metadata: {}
+    data:
+      target_temp_low: 72
+    target:
+      device_id: fdd66dcd4fe965ed7ea20c5e7d9ab8b0
+  - delay:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
+  - if:
+    - type: is_temperature
+      condition: device
+      device_id: 07694a8058f9c7f7f1b975e87982e2af
+      entity_id: ff2810547eba7d5d698f9df4bbff82cc
+      domain: sensor
+      above: 69
+    then:
+    - action: climate.set_temperature
+      metadata: {}
+      data:
+        target_temp_low: 68
+      target:
+        device_id: fdd66dcd4fe965ed7ea20c5e7d9ab8b0
+  mode: single

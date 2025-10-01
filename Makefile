@@ -10,6 +10,8 @@ endif
 HA_HOST ?= your_homeassistant_host
 HA_REMOTE_PATH ?= /config/
 LOCAL_CONFIG_PATH ?= config/
+HA_REMOTE_ADDON_PATH ?= /addon_configs/
+LOCAL_ADDON_CONFIG_PATH ?= addon_configs/
 BACKUP_DIR ?= backups
 VENV_PATH ?= venv
 TOOLS_PATH ?= tools
@@ -44,6 +46,7 @@ help:
 pull: check-env
 	@echo "$(GREEN)Pulling configuration from Home Assistant...$(NC)"
 	@rsync -avz --delete --exclude-from=.rsync-excludes $(HA_HOST):$(HA_REMOTE_PATH) $(LOCAL_CONFIG_PATH)
+	@rsync -avz --delete --exclude-from=.rsync-excludes $(HA_HOST):$(HA_REMOTE_ADDON_PATH) $(LOCAL_ADDON_CONFIG_PATH)
 	@echo "$(GREEN)Configuration pulled successfully!$(NC)"
 	@echo "$(YELLOW)Running validation to ensure integrity...$(NC)"
 	@$(MAKE) validate
@@ -54,6 +57,7 @@ push: check-env
 	@$(MAKE) validate
 	@echo "$(GREEN)Validation passed! Pushing to Home Assistant...$(NC)"
 	@rsync -avz --delete --exclude-from=.rsync-excludes $(LOCAL_CONFIG_PATH) $(HA_HOST):$(HA_REMOTE_PATH)
+	@rsync -avz --delete --exclude-from=.rsync-excludes $(LOCAL_ADDON_CONFIG_PATH) $(HA_HOST):$(HA_REMOTE_ADDON_PATH)
 	@echo "$(GREEN)Configuration pushed successfully!$(NC)"
 	@echo "$(GREEN)Reloading Home Assistant configuration...$(NC)"
 	@. $(VENV_PATH)/bin/activate && python $(TOOLS_PATH)/reload_config.py

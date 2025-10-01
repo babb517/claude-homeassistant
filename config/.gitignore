@@ -1,0 +1,9 @@
+.storage
+.HA_VERSION
+.cloud
+*.log*
+*.db*
+*.pem
+.idea
+tmp
+camera_events
