@@ -103,6 +103,7 @@ class ReferenceValidator:
         self._entities: Optional[Dict[str, Any]] = None
         self._devices: Optional[Dict[str, Any]] = None
         self._areas: Optional[Dict[str, Any]] = None
+        self._config_entities: Optional[Set[str]] = None
 
     def load_entity_registry(self) -> Dict[str, Any]:
         """Load and cache entity registry."""
@@ -339,6 +340,70 @@ class ReferenceValidator:
             if "id" in entity_data
         }
 
+    def load_config_defined_entities(self) -> Set[str]:
+        """Load entities defined in configuration.yaml (templates, platforms, etc)."""
+        if self._config_entities is not None:
+            return self._config_entities
+
+        config_entities = set()
+        config_file = self.config_dir / "configuration.yaml"
+
+        if not config_file.exists():
+            return config_entities
+
+        try:
+            with open(config_file, "r", encoding="utf-8") as f:
+                data = yaml.load(f, Loader=HAYamlLoader)
+
+            if not isinstance(data, dict):
+                return config_entities
+
+            # Extract template entities
+            if "template" in data and isinstance(data["template"], list):
+                for template_block in data["template"]:
+                    if isinstance(template_block, dict):
+                        # Check for sensor templates
+                        if "sensor" in template_block:
+                            sensors = template_block["sensor"]
+                            if isinstance(sensors, list):
+                                for sensor in sensors:
+                                    if isinstance(sensor, dict) and "name" in sensor:
+                                        # Convert name to entity_id format
+                                        entity_name = sensor["name"].lower().replace(" ", "_")
+                                        config_entities.add(f"sensor.{entity_name}")
+                            elif isinstance(sensors, dict) and "name" in sensors:
+                                entity_name = sensors["name"].lower().replace(" ", "_")
+                                config_entities.add(f"sensor.{entity_name}")
+
+                        # Check for binary_sensor templates
+                        if "binary_sensor" in template_block:
+                            sensors = template_block["binary_sensor"]
+                            if isinstance(sensors, list):
+                                for sensor in sensors:
+                                    if isinstance(sensor, dict) and "name" in sensor:
+                                        entity_name = sensor["name"].lower().replace(" ", "_")
+                                        config_entities.add(f"binary_sensor.{entity_name}")
+                            elif isinstance(sensors, dict) and "name" in sensors:
+                                entity_name = sensors["name"].lower().replace(" ", "_")
+                                config_entities.add(f"binary_sensor.{entity_name}")
+
+            # Extract platform-based entities (like generic_thermostat)
+            for domain in ["climate", "sensor", "binary_sensor", "switch", "light"]:
+                if domain in data:
+                    platform_configs = data[domain]
+                    if isinstance(platform_configs, list):
+                        for config in platform_configs:
+                            if isinstance(config, dict) and "name" in config:
+                                entity_name = config["name"].lower().replace(" ", "_")
+                                config_entities.add(f"{domain}.{entity_name}")
+
+            self._config_entities = config_entities
+            return config_entities
+
+        except Exception as e:
+            # Don't fail validation, just log and continue
+            return config_entities
+
     def validate_file_references(self, file_path: Path) -> bool:
         """Validate all references in a single file."""
         if file_path.name == "secrets.yaml":
@@ -365,6 +430,7 @@ class ReferenceValidator:
         devices = self.load_device_registry()
         areas = self.load_area_registry()
         entity_id_mapping = self.get_entity_registry_id_mapping()
+        config_entities = self.load_config_defined_entities()
 
         all_valid = True
 
@@ -374,7 +440,8 @@ class ReferenceValidator:
             if self.is_uuid_format(entity_id):
                 continue
 
-            if entity_id not in entities:
+            # Check entity registry first, then config-defined entities
+            if entity_id not in entities and entity_id not in config_entities:
                 # Check if it's a disabled entity
                 disabled_entities = {
                     e["entity_id"]: e
