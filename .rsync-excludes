@@ -1,6 +1,5 @@
 home-assistant_v2.db*
 *.log*
-custom_components/
 custom_icons/
 themes/
 .cloud/
@@ -9,3 +8,4 @@ tts/
 *.db-shm
 *.db-wal
 .uuid
+.git
