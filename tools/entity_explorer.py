@@ -159,13 +159,11 @@ def print_summary(categorized: Dict):
         print(f"   {domain.upper()}: {len(entities)} entities")
 
         # Show a few examples
-        for entity in entities[:3]:
+        for entity in entities:
             area_str = f" ({entity['area']})" if entity["area"] != "No Area" else ""
             unit_str = f" [{entity['unit']}]" if entity.get("unit") else ""
             print(f"     • {entity['entity_id']}{area_str}{unit_str}")
 
-        if len(entities) > 3:
-            print(f"     ... and {len(entities) - 3} more")
         print()
 
 
