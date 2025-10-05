@@ -79,9 +79,9 @@ dog_run_lights:
   triggers:
     - binary_sensor.dog_run_door
     - binary_sensor.dog_run_person
-    - binary_sensor.dog_run_pet
+    - binary_sensor.dog_run_animal
     - binary_sensor.chicken_coop_person
-    - binary_sensor.chicken_coop_pet
+    - binary_sensor.chicken_coop_animal
   lights:
     - light.exterior_dog_run_lights
 
@@ -96,7 +96,7 @@ backyard_lights:
     - binary_sensor.family_room_back_slider
     - binary_sensor.back_door
     - binary_sensor.back_yard_person
-    - binary_sensor.back_yard_pet
+    - binary_sensor.back_yard_animal
   lights:
     - light.exterior_backyard_floodlight
 
@@ -265,7 +265,7 @@ cameras:
 
   cameras:
     - name: Porch
-      entity: camera.porch_main
+      entity: camera.porch_snapshots_clear
       sensors:
         - name: Person
           entity: binary_sensor.porch_person
@@ -274,13 +274,13 @@ cameras:
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.porch_pet
+          entity: binary_sensor.porch_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
 
     - name: Driveway
-      entity: camera.driveway_main
+      entity: camera.driveway_snapshots_clear
       sensors:
         - name: Person
           entity: binary_sensor.driveway_person
@@ -295,13 +295,13 @@ cameras:
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.driveway_pet
+          entity: binary_sensor.driveway_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
           
     - name: Dog Run
-      entity: camera.dog_run_main
+      entity: camera.dog_run_snapshots_clear
       sensors:
         - name: Person
           entity: binary_sensor.dog_run_person
@@ -310,13 +310,13 @@ cameras:
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.dog_run_pet
+          entity: binary_sensor.dog_run_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
 
     - name: Shed
-      entity: camera.shed_main
+      entity: camera.shed_snapshots_clear
       sensors:
         - name: Person
           entity: binary_sensor.shed_person
@@ -325,7 +325,7 @@ cameras:
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.shed_pet
+          entity: binary_sensor.shed_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
@@ -340,13 +340,13 @@ cameras:
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.field_pet
+          entity: binary_sensor.field_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
 
     - name: Backyard
-      entity: camera.back_yard_main
+      entity: camera.back_yard_snapshots_clear
       sensors:
         - name: Person
           entity: binary_sensor.back_yard_person
@@ -355,7 +355,7 @@ cameras:
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.back_yard_pet
+          entity: binary_sensor.back_yard_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
@@ -370,13 +370,13 @@ cameras:
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.chicken_coop_pet
+          entity: binary_sensor.chicken_coop_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
 
     - name: Living Room
-      entity: camera.living_room_main
+      entity: camera.living_room_snapshots_clear
       sensors:
         - name: Person
           entity: binary_sensor.living_room_person
@@ -385,7 +385,7 @@ cameras:
           snapshot_period_minutes: 15
 
         - name: Animal
-          entity: binary_sensor.living_room_pet
+          entity: binary_sensor.living_room_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
