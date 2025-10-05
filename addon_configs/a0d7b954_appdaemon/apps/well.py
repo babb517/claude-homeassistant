@@ -71,7 +71,7 @@ class Well(hass.Hass):
 
         self.notify('Well monitoring enabled.')
         self.tick(None)
-        self.run_minutely(self.tick, None):wheel
+        self.run_minutely(self.tick, None)
 
     def notify(self, message):
         for n in self.notification_service:
