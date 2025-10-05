@@ -264,12 +264,19 @@ sensor:
     max_age_seconds: 172800
 
   - platform: files
-    folder: '/config/www/camera_events/Field Images'
+    folder: '/config/www/camera_events/Field1 Images'
     filter: '*.jpg'
-    name: camera_events_field
+    name: camera_events_field1
     sort: date    
     max_age_seconds: 172800
-    
+
+  - platform: files
+    folder: '/config/www/camera_events/Field2 Images'
+    filter: '*.jpg'
+    name: camera_events_field2
+    sort: date
+    max_age_seconds: 172800
+
   - platform: files
     folder: '/config/www/camera_events/Living Room Images'
     filter: '*.jpg'
