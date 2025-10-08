@@ -44,11 +44,6 @@ class NightLights(hass.Hass):
         self.off_entity = str(self.arg('off_entity', default="", require_entity_exists=True))
         self.on_entity = str(self.arg('on_entity', default="", require_entity_exists=True))
 
-        self.thread = int(self.arg("thread", randint(0, NUM_THREADS - 1)))
-
-        self.set_app_pin(True)
-        self.set_pin_thread(self.thread)
-
         self.run_minutely(self.tick, None)
 
     def tick(self, kwargs):

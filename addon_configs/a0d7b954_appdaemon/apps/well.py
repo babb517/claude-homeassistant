@@ -66,9 +66,6 @@ class Well(hass.Hass):
         
         self.explained_usage_switches = self.listr(self.arg("triggers", []), True)
 
-        self.set_app_pin(True)
-        self.set_pin_thread(self.thread)
-
         self.notify('Well monitoring enabled.')
         self.tick(None)
         self.run_minutely(self.tick, None)

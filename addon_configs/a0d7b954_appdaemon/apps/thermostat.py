@@ -45,11 +45,6 @@ class Thermostat(hass.Hass):
         self.min = float(self.arg('min', -100))
         self.max = float(self.arg('max', 200))
 
-        self.thread = int(self.arg("thread", randint(0, NUM_THREADS - 1)))
-
-        self.set_app_pin(True)
-        self.set_pin_thread(self.thread)
-
         self.run_minutely(self.tick, None)
 
     def tick(self, kwargs):

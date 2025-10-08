@@ -60,12 +60,6 @@ class AutoLights(hass.Hass):
 
         self.threshold_level = float(self.arg("threshold_level", 0.1))
 
-        self.thread = int(self.arg("thread", randint(0, NUM_THREADS - 1)))
-
-
-        self.set_app_pin(True)
-        self.set_pin_thread(self.thread)
-
         self.states = {}
 
         self.listen_state(self.notify_trigger, self.triggers)
