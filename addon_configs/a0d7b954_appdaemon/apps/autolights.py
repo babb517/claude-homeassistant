@@ -108,8 +108,8 @@ class AutoLights(hass.Hass):
         elif self.trigger_during_day:
             self.dbg(f'trigger_during_day {entity}')
             return True
-        elif self.now_is_between("sunset - 00:30:00", "sunrise + 00:30:00"):
-            self.dbg(f'night_time_trigger {entity} at {self.get_now()} between {self.sunset() - timedelta(minutes=30)} and {self.sunrise() + timedelta(minutes=30)}')
+        elif self.get_state("binary_sensor.dark_outside") == "on":
+            self.dbg(f'night_time_trigger {entity} - dark_outside sensor is on')
             return True
         else:
             self.dbg(f'Ignoring trigger {entity}')

@@ -157,9 +157,9 @@ class Motion(hass.Hass):
         if nt == NotificationTime.always:
             return True
         elif nt == NotificationTime.night:
-            return self.now_is_between("sunset + 00:15:00", "sunrise - 00:15:00")
+            return self.get_state("binary_sensor.dark_outside") == "on"
         elif nt == NotificationTime.day:
-            return not self.now_is_between("sunset + 00:15:00", "sunrise - 00:15:00")
+            return self.get_state("binary_sensor.dark_outside") == "off"
         else:
             return False
 

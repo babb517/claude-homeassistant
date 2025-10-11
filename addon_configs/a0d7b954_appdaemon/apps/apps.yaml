@@ -4,12 +4,13 @@ living_room_lights:
   class: AutoLights
   triggers:
     - binary_sensor.front_door
-    - binary_sensor.family_room_back_slider
+    - binary_sensor.living_room_back_slider
     - binary_sensor.front_window
     - binary_sensor.side_window
+    - binary_sensor.right_side_window
   lights:
     - light.living_room_main_lights
-
+  debug: true
   trigger_level: 0.8
   trigger_minutes: 10
   initial_minutes: 10000
@@ -24,7 +25,7 @@ dining_room_lights:
     - light.dining_room_main_lights
 
   trigger_level: 0.8
-  trigger_minutes: 10
+  trigger_minutes: 120
   initial_minutes: 10000
   dim_increment: 1.0
 

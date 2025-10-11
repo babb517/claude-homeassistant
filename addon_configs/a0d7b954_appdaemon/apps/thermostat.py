@@ -49,7 +49,7 @@ class Thermostat(hass.Hass):
 
     def tick(self, kwargs):
         # Enforce light state
-        is_night = self.now_is_between("sunset - 00:30:00", "sunrise + 00:30:00")
+        is_night = self.get_state("binary_sensor.dark_outside") == "on"
 
         should_heat = False
         should_cool = False

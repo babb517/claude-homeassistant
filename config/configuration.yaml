@@ -176,6 +176,11 @@ template:
         state: >
           {{ states('sensor.spa_2_1min') | float > 50 }}
 
+  - binary_sensor:
+        name: Dark Outside
+        state: >
+          {{ states('sensor.home_weather_illuminance') | float < 35000 }}
+
 input_boolean:
   sleep_mode:
     name: Sleep Mode
