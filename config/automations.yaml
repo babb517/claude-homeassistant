@@ -751,3 +751,203 @@
             volume: 0.8
   mode: single
   max_exceeded: silent
+- id: '1745270000000'
+  alias: Turn Off Exterior Lights When Bright Outside
+  description: Turn off all exterior area lights when it becomes bright outside (illuminance > 100000 lx)
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bright_outside
+    to: 'on'
+  condition: []
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      area_id: exterior
+  mode: single
+- id: '1745270000001'
+  alias: Turn Off Barn Light After 30 Minutes
+  description: Turn off barn light after it's been on for 30 minutes between sunset and sunrise
+  trigger:
+  - platform: state
+    entity_id: light.exterior_barn
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 30
+      seconds: 0
+  condition:
+  - condition: sun
+    after: sunset
+    before: sunrise
+  action:
+  - service: light.turn_off
+    data: {}
+    target:
+      entity_id: light.exterior_barn
+  mode: single
+- id: '1745270000002'
+  alias: Dining Room Door Triggers Area and Exterior Lights
+  description: Turn on dining room and nearby exterior lights when door opens and it's dark outside
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.dining_room_door
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      area_id: dining_room
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_side_flood_lights
+      - light.exterior_parking_flood_light
+  mode: single
+- id: '1745270000003'
+  alias: Front Door or Dog Run Door Triggers Exterior Lights
+  description: Turn on living room and nearby exterior lights when front door or dog run door opens and it's dark outside
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.front_door
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.dog_run_door
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      area_id: living_room
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_dog_run_lights
+      - light.exterior_parking_flood_light
+      - light.exterior_porch_sconces
+  mode: single
+- id: '1745270000004'
+  alias: Back Door Triggers Laundry Room and Exterior Lights
+  description: Turn on laundry room and nearby exterior lights when back door opens and it's dark outside
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.back_door
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      area_id: laundry_room
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_backyard_floodlight
+      - light.exterior_pool_flood_lights
+  mode: single
+- id: '1745270000005'
+  alias: Master Bedroom French Doors Trigger Pool Lights
+  description: Turn on master bedroom and pool exterior lights when french doors open and it's dark outside
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.master_bedroom_french_doors
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      area_id: master_bedroom
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_pool_flood_lights
+  mode: single
+- id: '1745270000006'
+  alias: Master Bedroom Jacuzzi or Clothesline Door Triggers Hot Tub Lights
+  description: Turn on master bedroom and hot tub exterior lights when jacuzzi or clothesline door opens and it's dark outside
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.master_bedroom_jacuzzi_door
+    to: 'on'
+  - platform: state
+    entity_id: binary_sensor.master_bedroom_clothesline_door
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      area_id: master_bedroom
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_hot_tub_floodlight
+  mode: single
+- id: '1745270000007'
+  alias: Master Bathroom Door Triggers Pool Lights
+  description: Turn on master bathroom and pool exterior lights when bathroom door opens and it's dark outside
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.master_bathroom_door
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      area_id: master_bathroom
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_pool_flood_lights
+  mode: single
+- id: '1745270000008'
+  alias: Living Room Back Slider Triggers Exterior Lights
+  description: Turn on living room and backyard exterior lights when slider opens and it's dark outside
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.living_room_back_slider
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  action:
+  - service: light.turn_on
+    data: {}
+    target:
+      area_id: living_room
+  - service: light.turn_on
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_backyard_floodlight
+      - light.exterior_family_room_flood_lights
+  mode: single
