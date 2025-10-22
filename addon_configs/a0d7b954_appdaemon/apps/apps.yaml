@@ -129,16 +129,16 @@ cameras:
           snapshot_period_minutes: 5
 
     - name: Backyard
-      entity: camera.back_yard_snapshots_clear
+      entity: camera.backyard_snapshots_clear
       sensors:
         - name: Person
-          entity: binary_sensor.back_yard_person
+          entity: binary_sensor.backyard_person
           #critical: night
           icon: 'sfsymbols:warning'
           notification_period_minutes: 5
           
         - name: Animal
-          entity: binary_sensor.back_yard_animal
+          entity: binary_sensor.backyard_animal
           #notify: night
           notification_period_minutes: 15
           snapshot_period_minutes: 5
