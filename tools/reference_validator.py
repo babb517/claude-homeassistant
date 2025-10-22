@@ -387,7 +387,7 @@ class ReferenceValidator:
                                 entity_name = sensors["name"].lower().replace(" ", "_")
                                 config_entities.add(f"binary_sensor.{entity_name}")
 
-            # Extract platform-based entities (like generic_thermostat)
+            # Extract platform-based entities (like generic_thermostat, statistics sensors)
             for domain in ["climate", "sensor", "binary_sensor", "switch", "light"]:
                 if domain in data:
                     platform_configs = data[domain]

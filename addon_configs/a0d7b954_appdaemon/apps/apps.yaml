@@ -10,7 +10,6 @@ living_room_lights:
     - binary_sensor.right_side_window
   lights:
     - light.living_room_main_lights
-  debug: true
   trigger_level: 0.8
   trigger_minutes: 10
   initial_minutes: 10000

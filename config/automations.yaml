@@ -435,15 +435,16 @@
     entity_id: sensor.tortilla_temperature
     below: 80
   actions:
-  - data:
+  - service: notify.mobile_app_joes_personal_phone
+    data:
       message: Tortilla is {{ states("sensor.tortilla_temperature") }} degrees!
+      title: Tortilla Low Temperature
       data:
         push:
           sound:
             name: default
             critical: 1
             volume: 1
-    action: notify.mobile_app_joes_personal_phone
   mode: single
 - id: '1708001613347'
   alias: Disable HVAC when fireplace turns on
@@ -562,3 +563,191 @@
       target:
         device_id: fdd66dcd4fe965ed7ea20c5e7d9ab8b0
   mode: single
+- id: '1745267890123'
+  alias: Sleep Mode Colors Brightness
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - input_boolean.sleep_mode
+    to: 'on'
+    id: entering_sleep
+  - platform: state
+    entity_id:
+    - input_boolean.sleep_mode
+    to: 'off'
+    id: leaving_sleep
+  condition: []
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id:
+        - entering_sleep
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness_pct: 10
+        target:
+          entity_id:
+          - light.colors
+          - light.colors_2
+    - conditions:
+      - condition: trigger
+        id:
+        - leaving_sleep
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness_pct: 60
+        target:
+          entity_id:
+          - light.colors
+          - light.colors_2
+  mode: single
+- id: '1745268123456'
+  alias: Door Left Open Warning
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - binary_sensor.front_door
+    - binary_sensor.back_door
+    - binary_sensor.dining_room_door
+    - binary_sensor.dog_run_door
+    - binary_sensor.living_room_back_slider
+    - binary_sensor.master_bathroom_door
+    - binary_sensor.master_bedroom_clothesline_door
+    - binary_sensor.master_bedroom_french_doors
+    - binary_sensor.master_bedroom_jacuzzi_door
+    to: 'on'
+    for:
+      hours: 0
+      minutes: 10
+      seconds: 0
+  condition: []
+  action:
+  - service: notify.mobile_app_joes_personal_phone
+    data:
+      message: '{{ trigger.to_state.attributes.friendly_name }} has been left open
+        for 10 minutes!'
+      title: Door Left Open
+      data:
+        push:
+          sound:
+            name: default
+            critical: 0
+            volume: 0.8
+  mode: queued
+  max: 10
+- id: '1745268234567'
+  alias: Well Irrigation Tracker
+  description: Track when irrigation switches are on to explain well usage
+  trigger:
+  - platform: state
+    entity_id:
+    - switch.irrigation_backyard_1
+    - switch.irrigation_backyard_2
+    - switch.irrigation_backyard_3
+    - switch.irrigation_backyard_4
+    - switch.irrigation_backyard_5
+    - switch.irrigation_backyard_6
+    - switch.irrigation_fence_vines
+    - switch.irrigation_flowers
+    - switch.irrigation_turf_2
+    - switch.irrigation_turf_3
+    - switch.irrigation_turf_4
+    to: 'on'
+  condition: []
+  action:
+  - service: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.well_irrigation_active
+  mode: single
+- id: '1745268345678'
+  alias: Well Irrigation Tracker Off
+  description: Turn off irrigation tracker 60 minutes after all switches are off
+  trigger:
+  - platform: state
+    entity_id:
+    - switch.irrigation_backyard_1
+    - switch.irrigation_backyard_2
+    - switch.irrigation_backyard_3
+    - switch.irrigation_backyard_4
+    - switch.irrigation_backyard_5
+    - switch.irrigation_backyard_6
+    - switch.irrigation_fence_vines
+    - switch.irrigation_flowers
+    - switch.irrigation_turf_2
+    - switch.irrigation_turf_3
+    - switch.irrigation_turf_4
+    to: 'off'
+    for:
+      hours: 1
+      minutes: 0
+      seconds: 0
+  condition:
+  - condition: state
+    entity_id: switch.irrigation_backyard_1
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_backyard_2
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_backyard_3
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_backyard_4
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_backyard_5
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_backyard_6
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_fence_vines
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_flowers
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_turf_2
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_turf_3
+    state: 'off'
+  - condition: state
+    entity_id: switch.irrigation_turf_4
+    state: 'off'
+  action:
+  - service: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.well_irrigation_active
+  mode: single
+- id: '1745268456789'
+  alias: Well High Usage Alert
+  description: Alert when well usage exceeds 0.5 kWh over 1 hour without irrigation
+  trigger:
+  - platform: time_pattern
+    minutes: /1
+  condition:
+  - condition: template
+    value_template: '{{ states("sensor.well_energy_1h_change") | float(0) > 0.5 }}'
+  - condition: state
+    entity_id: input_boolean.well_irrigation_active
+    state: 'off'
+  action:
+  - service: notify.mobile_app_joes_phone
+    data:
+      message: Detected high well usage of {{ states("sensor.well_energy_1h_change")
+        }} kWh in the last hour without irrigation!
+      title: Well Monitoring
+      data:
+        push:
+          sound:
+            name: default
+            critical: 0
+            volume: 0.8
+  mode: single
+  max_exceeded: silent

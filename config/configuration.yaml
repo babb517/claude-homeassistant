@@ -192,6 +192,9 @@ input_boolean:
   tortilla_too_cold:
     name: Tortilla Too Cold
     icon: mdi:thermometer-alert
+  well_irrigation_active:
+    name: Well Irrigation Active
+    icon: mdi:sprinkler-variant
 
 sensor:
   - platform: integration
@@ -200,14 +203,120 @@ sensor:
     unit_prefix: k
     unit_time: h
     method: left
-    
+
   - platform: integration
     name: Grid Export Energy
     source: sensor.grid_export_power
     unit_prefix: k
     unit_time: h
     method: left
-    
+
+  # Weather Statistics Sensors
+  - platform: statistics
+    name: Temperature 24h Stats
+    entity_id: sensor.home_weather_temperature
+    state_characteristic: mean
+    max_age:
+      hours: 24
+    precision: 1
+
+  - platform: statistics
+    name: Temperature Week Stats
+    entity_id: sensor.home_weather_temperature
+    state_characteristic: mean
+    max_age:
+      days: 7
+    precision: 1
+
+  - platform: statistics
+    name: Temperature Month Stats
+    entity_id: sensor.home_weather_temperature
+    state_characteristic: mean
+    max_age:
+      days: 30
+    precision: 1
+
+  - platform: statistics
+    name: Wind Speed 24h Stats
+    entity_id: sensor.home_weather_wind_speed
+    state_characteristic: mean
+    max_age:
+      hours: 24
+    precision: 1
+
+  - platform: statistics
+    name: Wind Speed Week Stats
+    entity_id: sensor.home_weather_wind_speed
+    state_characteristic: mean
+    max_age:
+      days: 7
+    precision: 1
+
+  - platform: statistics
+    name: Wind Speed Month Stats
+    entity_id: sensor.home_weather_wind_speed
+    state_characteristic: mean
+    max_age:
+      days: 30
+    precision: 1
+
+  - platform: statistics
+    name: Humidity 24h Stats
+    entity_id: sensor.home_weather_humidity
+    state_characteristic: mean
+    max_age:
+      hours: 24
+    precision: 1
+
+  - platform: statistics
+    name: Humidity Week Stats
+    entity_id: sensor.home_weather_humidity
+    state_characteristic: mean
+    max_age:
+      days: 7
+    precision: 1
+
+  - platform: statistics
+    name: Humidity Month Stats
+    entity_id: sensor.home_weather_humidity
+    state_characteristic: mean
+    max_age:
+      days: 30
+    precision: 1
+
+  - platform: statistics
+    name: Precipitation 24h Stats
+    entity_id: sensor.home_weather_precipitation
+    state_characteristic: total
+    max_age:
+      hours: 24
+    precision: 2
+
+  - platform: statistics
+    name: Precipitation Week Stats
+    entity_id: sensor.home_weather_precipitation
+    state_characteristic: total
+    max_age:
+      days: 7
+    precision: 2
+
+  - platform: statistics
+    name: Precipitation Month Stats
+    entity_id: sensor.home_weather_precipitation
+    state_characteristic: total
+    max_age:
+      days: 30
+    precision: 2
+
+  # Well monitoring - track energy usage change over 1 hour
+  - platform: statistics
+    name: Well Energy 1h Change
+    entity_id: sensor.well_19_4_1d
+    state_characteristic: change
+    max_age:
+      hours: 1
+    precision: 2
+
   - platform: files
     folder: '/config/www/camera_events/Animal Images'
     filter: '*.jpg'
