@@ -542,40 +542,96 @@
           - light.colors_2
         action: light.turn_on
   mode: single
-- id: '1745268123456'
-  alias: Alert - Door Left Open
-  description: ''
-  triggers:
-  - entity_id:
-    - binary_sensor.front_door
-    - binary_sensor.back_door
-    - binary_sensor.dining_room_door
-    - binary_sensor.dog_run_door
-    - binary_sensor.living_room_back_slider
-    - binary_sensor.master_bathroom_door
-    - binary_sensor.master_bedroom_clothesline_door
-    - binary_sensor.master_bedroom_french_doors
-    - binary_sensor.master_bedroom_jacuzzi_door
-    to: 'on'
-    for:
-      hours: 0
-      minutes: 10
-      seconds: 0
-    trigger: state
-  conditions: []
-  actions:
-  - action: notify.mobile_app_iphone
-    data:
-      title: Door Left Open!
-      data:
-        push:
-          sound:
-            name: default
-            critical: 1
-            volume: 1
-      message: Door {{ trigger.entity_id }} is open!
-  mode: queued
-  max: 10
+- id: door_alert_front_door
+  alias: Alert - Front Door Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.front_door
+      door_name: Front Door
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_back_door
+  alias: Alert - Back Door Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.back_door
+      door_name: Back Door
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_dining_room_door
+  alias: Alert - Dining Room Door Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.dining_room_door
+      door_name: Dining Room Door
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_dog_run_door
+  alias: Alert - Dog Run Door Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.dog_run_door
+      door_name: Dog Run Door
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_living_room_back_slider
+  alias: Alert - Living Room Back Slider Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.living_room_back_slider
+      door_name: Living Room Back Slider
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_master_bathroom_door
+  alias: Alert - Master Bathroom Door Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.master_bathroom_door
+      door_name: Master Bathroom Door
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_master_bedroom_clothesline_door
+  alias: Alert - Master Bedroom Clothesline Door Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.master_bedroom_clothesline_door
+      door_name: Master Bedroom Clothesline Door
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_master_bedroom_french_doors
+  alias: Alert - Master Bedroom French Doors Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.master_bedroom_french_doors
+      door_name: Master Bedroom French Doors
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
+- id: door_alert_master_bedroom_jacuzzi_door
+  alias: Alert - Master Bedroom Jacuzzi Door Left Open
+  use_blueprint:
+    path: door_left_open_alert.yaml
+    input:
+      door_sensor: binary_sensor.master_bedroom_jacuzzi_door
+      door_name: Master Bedroom Jacuzzi Door
+      anyone_home_entity: input_boolean.anyone_home
+      notification_service: notify.mobile_app_iphone
+      open_duration_minutes: 10
 - id: '1745268234567'
   alias: Well Irrigation Tracker
   description: Track when irrigation switches are on to explain well usage

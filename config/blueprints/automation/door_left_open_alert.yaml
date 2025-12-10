@@ -1,0 +1,95 @@
+blueprint:
+  name: Door Left Open Alert
+  description: |
+    Alert when a door is left open for a specified duration OR when nobody is home and a door is open.
+    Sends critical notifications to specified services.
+  domain: automation
+  input:
+    door_sensor:
+      name: Door Sensor
+      description: Binary sensor for the door
+      selector:
+        entity:
+          domain: binary_sensor
+    door_name:
+      name: Door Name
+      description: Friendly name for the door (used in notifications)
+      selector:
+        text:
+    anyone_home_entity:
+      name: Anyone Home Entity
+      description: Input boolean that tracks if anyone is home
+      default: input_boolean.anyone_home
+      selector:
+        entity:
+          domain: input_boolean
+    notification_service:
+      name: Notification Service
+      description: Notification service to use (e.g., notify.mobile_app_iphone)
+      default: notify.mobile_app_iphone
+      selector:
+        text:
+    open_duration_minutes:
+      name: Open Duration (minutes)
+      description: How long the door must be open before alerting (when someone is home)
+      default: 10
+      selector:
+        number:
+          min: 1
+          max: 60
+          step: 1
+          mode: slider
+
+mode: queued
+max: 10
+
+trigger:
+  # Alert after duration when someone is home
+  - platform: state
+    entity_id: !input door_sensor
+    to: 'on'
+    for:
+      minutes: !input open_duration_minutes
+    id: door_open_long
+  # Check immediately when door opens (for away scenario)
+  - platform: state
+    entity_id: !input door_sensor
+    to: 'on'
+    id: door_opened
+  # Check when leaving home
+  - platform: state
+    entity_id: !input anyone_home_entity
+    from: 'on'
+    to: 'off'
+    id: left_home
+
+condition:
+  - condition: or
+    conditions:
+      # Always alert if door has been open for the duration
+      - condition: trigger
+        id: door_open_long
+      # Alert immediately if nobody is home AND door is open
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: !input anyone_home_entity
+            state: 'off'
+          - condition: state
+            entity_id: !input door_sensor
+            state: 'on'
+
+action:
+  - service: !input notification_service
+    data:
+      title: Door Left Open!
+      message: "{{ door_name }} is open!"
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+
+variables:
+  door_name: !input door_name
