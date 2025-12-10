@@ -1,0 +1,95 @@
+blueprint:
+  name: Camera Motion Detection
+  description: |
+    Takes a camera snapshot and sends notifications when motion is detected.
+    Supports configurable cooldown periods for notifications and snapshots.
+  domain: automation
+  input:
+    motion_sensor:
+      name: Motion Sensor
+      description: Binary sensor that triggers the motion detection
+      selector:
+        entity:
+          domain: binary_sensor
+    camera_entity:
+      name: Camera Entity
+      description: Camera to take snapshots from
+      selector:
+        entity:
+          domain: camera
+    camera_name:
+      name: Camera Name
+      description: Friendly name for the camera (used in notifications)
+      selector:
+        text:
+    sensor_name:
+      name: Detection Type
+      description: Type of detection (e.g., Person, Animal, Vehicle)
+      selector:
+        text:
+    notification_services:
+      name: Notification Services
+      description: List of notification services to use (comma-separated, e.g., notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2)
+      selector:
+        text:
+    notification_icon:
+      name: Notification Icon
+      description: iOS notification icon (e.g., sfsymbols:warning)
+      default: sfsymbols:notifications
+      selector:
+        text:
+    send_notifications:
+      name: Send Notifications
+      description: Enable notifications (if disabled, only snapshots will be taken)
+      default: true
+      selector:
+        boolean:
+    is_critical:
+      name: Critical Notification
+      description: Send as critical notification
+      default: false
+      selector:
+        boolean:
+    cooldown_minutes:
+      name: Cooldown Period (minutes)
+      description: Minimum time between triggers
+      default: 5
+      selector:
+        number:
+          min: 1
+          max: 60
+          step: 1
+          mode: slider
+
+mode: single
+
+trigger:
+  - platform: state
+    entity_id: !input motion_sensor
+    to: 'on'
+
+action:
+  - choose:
+      # Send notification
+      - conditions:
+          - condition: template
+            value_template: !input send_notifications
+        sequence:
+          - service: script.camera_motion_snapshot_and_notify
+            data:
+              camera_entity: !input camera_entity
+              camera_name: !input camera_name
+              sensor_name: !input sensor_name
+              notification_services: !input notification_services
+              notification_icon: !input notification_icon
+              is_critical: !input is_critical
+    # Snapshot only
+    default:
+      - service: script.camera_motion_snapshot_only
+        data:
+          camera_entity: !input camera_entity
+          camera_name: !input camera_name
+          sensor_name: !input sensor_name
+  # Cooldown delay
+  - delay:
+      minutes: !input cooldown_minutes

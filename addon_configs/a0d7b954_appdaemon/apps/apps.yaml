@@ -5,7 +5,7 @@ well:
     
 #    debug: True
     notification_service:
-    - notify/mobile_app_joes_phone
+    - notify/mobile_app_iphone
     notification_title: 'Well Monitoring'
     notification_repeat_minutes: 15
     
@@ -21,154 +21,154 @@ well:
         switch.backyard_5
 
 
-cameras:
-  module: motion
-  class: Motion
-
-#  debug: True
-
-  notification_service:
-    - notify/mobile_app_joes_phone
-    - notify/mobile_app_alyssas_iphone_2
-
-  cameras:
-    - name: Porch
-      entity: camera.porch_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.porch_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-          
-        - name: Animal
-          entity: binary_sensor.porch_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-
-    - name: Driveway
-      entity: camera.driveway_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.driveway_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-          
-        - name: Vehicle
-          entity: binary_sensor.driveway_vehicle
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-          
-        - name: Animal
-          entity: binary_sensor.driveway_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-          
-    - name: Dog Run
-      entity: camera.dog_run_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.dog_run_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-          
-        - name: Animal
-          entity: binary_sensor.dog_run_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-
-    - name: Shed
-      entity: camera.shed_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.shed_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-          
-        - name: Animal
-          entity: binary_sensor.shed_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-
-    - name: Field1
-      entity: camera.field1_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.field1_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-
-        - name: Animal
-          entity: binary_sensor.field1_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-
-    - name: Field2
-      entity: camera.field2_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.field2_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-
-        - name: Animal
-          entity: binary_sensor.field2_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-
-    - name: Backyard
-      entity: camera.backyard_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.backyard_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-          
-        - name: Animal
-          entity: binary_sensor.backyard_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-
-    - name: Chicken Coop
-      entity: camera.chicken_coop_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.chicken_coop_person
-          #critical: night
-          icon: 'sfsymbols:warning'
-          notification_period_minutes: 5
-          
-        - name: Animal
-          entity: binary_sensor.chicken_coop_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
-
-    - name: Living Room
-      entity: camera.living_room_snapshots_clear
-      sensors:
-        - name: Person
-          entity: binary_sensor.living_room_person
-          notify: never
-          notification_period_minutes: 15
-          snapshot_period_minutes: 15
-
-        - name: Animal
-          entity: binary_sensor.living_room_animal
-          #notify: night
-          notification_period_minutes: 15
-          snapshot_period_minutes: 5
+#cameras:
+#  module: motion
+#  class: Motion
+#
+##  debug: True
+#
+#  notification_service:
+#    - notify/mobile_app_iphone
+#    - notify/mobile_app_alyssas_iphone_2
+#
+#  cameras:
+#    - name: Porch
+#      entity: camera.porch_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.porch_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.porch_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Driveway
+#      entity: camera.driveway_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.driveway_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Vehicle
+#          entity: binary_sensor.driveway_vehicle
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.driveway_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Dog Run
+#      entity: camera.dog_run_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.dog_run_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.dog_run_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Shed
+#      entity: camera.shed_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.shed_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.shed_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Field1
+#      entity: camera.field1_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.field1_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.field1_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Field2
+#      entity: camera.field2_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.field2_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.field2_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Backyard
+#      entity: camera.backyard_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.backyard_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.backyard_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Chicken Coop
+#      entity: camera.chicken_coop_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.chicken_coop_person
+#          #critical: night
+#          icon: 'sfsymbols:warning'
+#          notification_period_minutes: 5
+#
+#        - name: Animal
+#          entity: binary_sensor.chicken_coop_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5
+#
+#    - name: Living Room
+#      entity: camera.living_room_snapshots_clear
+#      sensors:
+#        - name: Person
+#          entity: binary_sensor.living_room_person
+#          notify: never
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 15
+#
+#        - name: Animal
+#          entity: binary_sensor.living_room_animal
+#          #notify: night
+#          notification_period_minutes: 15
+#          snapshot_period_minutes: 5

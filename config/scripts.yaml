@@ -15,3 +15,155 @@ goodnight:
       entity_id: 79f77442990ec2e831e3052820a6c56c
       domain: remote
   mode: single
+up_snoo:
+  sequence:
+  - choose:
+    - conditions:
+      - condition: device
+        device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: selected_option
+        option: stop
+      sequence:
+      - device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: select_option
+        option: level1
+      alias: Stopped -> 1
+    - conditions:
+      - condition: device
+        device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: selected_option
+        option: level1
+      sequence:
+      - device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: select_option
+        option: level2
+      alias: 1 -> 2
+    - conditions:
+      - condition: device
+        device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: selected_option
+        option: level2
+      sequence:
+      - device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: select_option
+        option: level3
+      alias: 2 -> 3
+    - conditions:
+      - condition: device
+        device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: selected_option
+        option: level3
+      sequence:
+      - device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+        domain: select
+        entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+        type: select_option
+        option: level4
+      alias: 3 -> 4
+  alias: Up Snoo
+  description: ''
+  icon: mdi:baby-face
+
+camera_motion_snapshot_and_notify:
+  alias: Camera Motion Snapshot and Notify
+  description: Take camera snapshot and send notification for motion detection
+  fields:
+    camera_entity:
+      description: Camera entity ID
+      example: camera.porch_snapshots_clear
+    camera_name:
+      description: Camera friendly name
+      example: Porch
+    sensor_name:
+      description: Type of detection
+      example: Person
+    notification_services:
+      description: Comma-separated list of notification services to call
+      example: "notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2"
+    notification_icon:
+      description: iOS notification icon
+      example: sfsymbols:warning
+      default: sfsymbols:notifications
+    is_critical:
+      description: Send as critical notification
+      example: false
+      default: false
+  sequence:
+    - variables:
+        timestamp: "{{ now().strftime('%b %d %I:%M:%S %p') }}"
+    - variables:
+        snapshot_filename: "{{ sensor_name }} - {{ timestamp }}.jpg"
+        snapshot_path: "{{ camera_name }} Images/{{ snapshot_filename }}"
+        snapshot_url: "/local/camera_events/{{ camera_name }} Images/{{ snapshot_filename }}"
+    - service: camera.snapshot
+      data:
+        filename: "/config/www/camera_events/{{ snapshot_path }}"
+      target:
+        entity_id: "{{ camera_entity }}"
+    - repeat:
+        for_each: "{{ notification_services.split(',') | map('trim') | list }}"
+        sequence:
+          - service: "{{ repeat.item }}"
+            data:
+              title: Motion Event
+              message: "{{ camera_name }} detected {{ sensor_name }}"
+              data:
+                notification_icon: "{{ notification_icon }}"
+                url: "{{ snapshot_url }}"
+                entity_id: "{{ camera_entity }}"
+                attachment:
+                  content-type: video
+                push:
+                  category: camera
+                  sound:
+                    critical: "{{ '1' if is_critical else '0' }}"
+                    volume: "0.0"
+                    name: default
+                actions:
+                  - action: "URI"
+                    title: "View"
+                    uri: "{{ snapshot_url }}"
+                  - action: "silence-camera-{{ camera_name | lower | replace(' ', '_') }}-30"
+                    title: "Silence 30m"
+                    icon: "sfsymbols:bell.slash"
+                  - action: "silence-camera-{{ camera_name | lower | replace(' ', '_') }}-60"
+                    title: "Silence 1h"
+                    icon: "sfsymbols:bell.slash.fill"
+  mode: parallel
+  max: 20
+
+camera_motion_snapshot_only:
+  alias: Camera Motion Snapshot Only
+  description: Take camera snapshot without notification
+  fields:
+    camera_entity:
+      description: Camera entity ID
+      example: camera.porch_snapshots_clear
+    camera_name:
+      description: Camera friendly name
+      example: Porch
+    sensor_name:
+      description: Type of detection
+      example: Animal
+  sequence:
+    - service: camera.snapshot
+      data:
+        filename: /config/www/camera_events/{{ camera_name }} Images/{{ sensor_name }} - {{ now().strftime('%b %d %I:%M:%S %p') }}.jpg
+      target:
+        entity_id: "{{ camera_entity }}"
+  mode: parallel
+  max: 20

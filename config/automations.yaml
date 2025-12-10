@@ -301,20 +301,20 @@
       entity_id: input_boolean.chicken_lights_override
   mode: single
 - id: '1703894682625'
-  alias: Keep Porch On
+  alias: Lights - Keep Porch On
   description: ''
-  trigger:
-  - platform: time_pattern
-    seconds: /15
-  condition:
+  triggers:
+  - seconds: /15
+    trigger: time_pattern
+  conditions:
   - condition: state
     entity_id: light.exterior_porch_sconces
     state: 'off'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       entity_id: light.exterior_porch_sconces
+    action: light.turn_on
   mode: single
 - id: '1704341256725'
   alias: Keep couch on
@@ -352,76 +352,8 @@
     target:
       entity_id: light.living_room_main_lights
   mode: single
-- id: '1705034864686'
-  alias: Back Door Triggers Pool Flood Lights
-  description: ''
-  trigger:
-  - type: opened
-    platform: device
-    device_id: a0408b048619ff47e295b0278cccf72b
-    entity_id: 3709801895a80bab87e2df0e9c1532a0
-    domain: binary_sensor
-  condition:
-  - condition: device
-    type: is_off
-    device_id: 6dd9cf2eece820ae99133a240fd42b46
-    entity_id: 49c8d40f07743f7b1dbd571b5f27f181
-    domain: light
-  - condition: sun
-    after: sunset
-    before: sunrise
-  action:
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id: light.exterior_pool_flood_lights
-  mode: single
-- id: '1705034990316'
-  alias: Front Door Triggers Dog Run Lights
-  description: ''
-  trigger:
-  - type: opened
-    platform: device
-    device_id: 1c04f03de4de1f1eee40c547ff6ecf08
-    entity_id: ad75d8bb9f031b81a8f1653a2da5600d
-    domain: binary_sensor
-  condition:
-  - condition: sun
-    after: sunset
-    before: sunrise
-  - condition: state
-    entity_id: light.exterior_dog_run_lights
-    state: 'off'
-  action:
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id: light.exterior_dog_run_lights
-  mode: single
-- id: '1705035062623'
-  alias: Front Door Triggers Parking Light
-  description: ''
-  trigger:
-  - type: opened
-    platform: device
-    device_id: 1c04f03de4de1f1eee40c547ff6ecf08
-    entity_id: ad75d8bb9f031b81a8f1653a2da5600d
-    domain: binary_sensor
-  condition:
-  - condition: sun
-    after: sunset
-    before: sunrise
-  - condition: state
-    entity_id: light.exterior_parking_flood_light
-    state: 'off'
-  action:
-  - service: light.turn_on
-    data: {}
-    target:
-      entity_id: light.exterior_parking_flood_light
-  mode: single
 - id: '1705995113757'
-  alias: Tortilla Low Temperature Warning
+  alias: Alert - Tortilla Low Temperature
   description: ''
   triggers:
   - hours: '*'
@@ -433,18 +365,23 @@
   conditions:
   - condition: numeric_state
     entity_id: sensor.tortilla_temperature
-    below: 80
+    below: 55
   actions:
-  - service: notify.mobile_app_joes_personal_phone
+  - action: notify.mobile_app_iphone
     data:
-      message: Tortilla is {{ states("sensor.tortilla_temperature") }} degrees!
-      title: Tortilla Low Temperature
+      title: Tortilla is too cold!
       data:
         push:
           sound:
             name: default
             critical: 1
             volume: 1
+      message: Temperature {{ states('sensor.tortilla_temperature') }} degrees!
+  - delay:
+      hours: 0
+      minutes: 30
+      seconds: 0
+      milliseconds: 0
   mode: single
 - id: '1708001613347'
   alias: Disable HVAC when fireplace turns on
@@ -564,53 +501,52 @@
         device_id: fdd66dcd4fe965ed7ea20c5e7d9ab8b0
   mode: single
 - id: '1745267890123'
-  alias: Sleep Mode Colors Brightness
+  alias: Lights - Sleep Mode Colors Brightness
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - input_boolean.sleep_mode
     to: 'on'
     id: entering_sleep
-  - platform: state
-    entity_id:
+    trigger: state
+  - entity_id:
     - input_boolean.sleep_mode
     to: 'off'
     id: leaving_sleep
-  condition: []
-  action:
+    trigger: state
+  conditions: []
+  actions:
   - choose:
     - conditions:
       - condition: trigger
         id:
         - entering_sleep
       sequence:
-      - service: light.turn_on
-        data:
+      - data:
           brightness_pct: 10
         target:
           entity_id:
           - light.colors
           - light.colors_2
+        action: light.turn_on
     - conditions:
       - condition: trigger
         id:
         - leaving_sleep
       sequence:
-      - service: light.turn_on
-        data:
+      - data:
           brightness_pct: 60
         target:
           entity_id:
           - light.colors
           - light.colors_2
+        action: light.turn_on
   mode: single
 - id: '1745268123456'
-  alias: Door Left Open Warning
+  alias: Alert - Door Left Open
   description: ''
-  trigger:
-  - platform: state
-    entity_id:
+  triggers:
+  - entity_id:
     - binary_sensor.front_door
     - binary_sensor.back_door
     - binary_sensor.dining_room_door
@@ -625,19 +561,19 @@
       hours: 0
       minutes: 10
       seconds: 0
-  condition: []
-  action:
-  - service: notify.mobile_app_joes_personal_phone
+    trigger: state
+  conditions: []
+  actions:
+  - action: notify.mobile_app_iphone
     data:
-      message: '{{ trigger.to_state.attributes.friendly_name }} has been left open
-        for 10 minutes!'
-      title: Door Left Open
+      title: Door Left Open!
       data:
         push:
           sound:
             name: default
-            critical: 0
-            volume: 0.8
+            critical: 1
+            volume: 1
+      message: Door {{ trigger.entity_id }} is open!
   mode: queued
   max: 10
 - id: '1745268234567'
@@ -726,228 +662,889 @@
       entity_id: input_boolean.well_irrigation_active
   mode: single
 - id: '1745268456789'
-  alias: Well High Usage Alert
+  alias: Alert - Well High Usage
   description: Alert when well usage exceeds 0.5 kWh over 1 hour without irrigation
-  trigger:
-  - platform: time_pattern
-    minutes: /1
-  condition:
+  triggers:
+  - minutes: /1
+    trigger: time_pattern
+  conditions:
   - condition: template
     value_template: '{{ states("sensor.well_energy_1h_change") | float(0) > 0.5 }}'
   - condition: state
     entity_id: input_boolean.well_irrigation_active
     state: 'off'
-  action:
-  - service: notify.mobile_app_joes_phone
+  actions:
+  - action: notify.mobile_app_iphone
     data:
-      message: Detected high well usage of {{ states("sensor.well_energy_1h_change")
-        }} kWh in the last hour without irrigation!
-      title: Well Monitoring
+      title: Well is running!
+      message: Check the water!
       data:
         push:
           sound:
             name: default
-            critical: 0
-            volume: 0.8
+            critical: 1
+            volume: 1
   mode: single
   max_exceeded: silent
 - id: '1745270000000'
-  alias: Turn Off Exterior Lights When Bright Outside
-  description: Turn off all exterior area lights when it becomes bright outside (illuminance > 100000 lx)
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bright_outside
+  alias: Lights - Turn Off Exterior Lights When Bright Outside
+  description: Turn off all exterior area lights when it becomes bright outside (illuminance
+    > 100000 lx)
+  triggers:
+  - entity_id: binary_sensor.bright_outside
     to: 'on'
-  condition: []
-  action:
-  - service: light.turn_off
-    data: {}
+    trigger: state
+  conditions: []
+  actions:
+  - data: {}
     target:
       area_id: exterior
+    action: light.turn_off
   mode: single
 - id: '1745270000001'
-  alias: Turn Off Barn Light After 30 Minutes
-  description: Turn off barn light after it's been on for 30 minutes between sunset and sunrise
-  trigger:
-  - platform: state
-    entity_id: light.exterior_barn
+  alias: Turn Off Barn After 30 Minutes
+  description: Turn off barn light after it's been on for 30 minutes between sunset
+    and sunrise
+  triggers:
+  - entity_id: light.exterior_barn
     to: 'on'
     for:
       hours: 0
       minutes: 30
       seconds: 0
-  condition:
+    trigger: state
+  conditions:
   - condition: sun
     after: sunset
     before: sunrise
-  action:
-  - service: light.turn_off
-    data: {}
+  actions:
+  - data: {}
     target:
       entity_id: light.exterior_barn
+    action: light.turn_off
   mode: single
 - id: '1745270000002'
-  alias: Dining Room Door Triggers Area and Exterior Lights
-  description: Turn on dining room and nearby exterior lights when door opens and it's dark outside
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.dining_room_door
+  alias: Lights - Dining Room Door Trigger
+  description: Turn on dining room and nearby exterior lights when door opens and
+    it's dark outside
+  triggers:
+  - entity_id: binary_sensor.dining_room_door
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.dark_outside
     state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       area_id: dining_room
-  - service: light.turn_on
-    data: {}
+    action: light.turn_on
+  - data: {}
     target:
       entity_id:
       - light.exterior_side_flood_lights
       - light.exterior_parking_flood_light
+    action: light.turn_on
   mode: single
 - id: '1745270000003'
-  alias: Front Door or Dog Run Door Triggers Exterior Lights
-  description: Turn on living room and nearby exterior lights when front door or dog run door opens and it's dark outside
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.front_door
+  alias: Lights - Dog Run Door Trigger
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.dog_run_door
     to: 'on'
-  - platform: state
-    entity_id: binary_sensor.dog_run_door
-    to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.dark_outside
     state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       area_id: living_room
-  - service: light.turn_on
-    data: {}
+    action: light.turn_on
+  - data: {}
     target:
       entity_id:
       - light.exterior_dog_run_lights
       - light.exterior_parking_flood_light
       - light.exterior_porch_sconces
+    action: light.turn_on
   mode: single
 - id: '1745270000004'
-  alias: Back Door Triggers Laundry Room and Exterior Lights
-  description: Turn on laundry room and nearby exterior lights when back door opens and it's dark outside
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.back_door
+  alias: Lights - Back Door Trigger
+  description: Turn on laundry room and nearby exterior lights when back door opens
+    and it's dark outside
+  triggers:
+  - entity_id: binary_sensor.back_door
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.dark_outside
     state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       area_id: laundry_room
-  - service: light.turn_on
-    data: {}
+    action: light.turn_on
+  - data: {}
     target:
       entity_id:
       - light.exterior_backyard_floodlight
       - light.exterior_pool_flood_lights
+    action: light.turn_on
   mode: single
 - id: '1745270000005'
-  alias: Master Bedroom French Doors Trigger Pool Lights
-  description: Turn on master bedroom and pool exterior lights when french doors open and it's dark outside
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.master_bedroom_french_doors
+  alias: Lights - Master Bedroom French Doors Trigger
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.master_bedroom_french_doors
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.dark_outside
     state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       area_id: master_bedroom
-  - service: light.turn_on
-    data: {}
+    action: light.turn_on
+  - data: {}
     target:
       entity_id:
       - light.exterior_pool_flood_lights
+    action: light.turn_on
   mode: single
 - id: '1745270000006'
-  alias: Master Bedroom Jacuzzi or Clothesline Door Triggers Hot Tub Lights
-  description: Turn on master bedroom and hot tub exterior lights when jacuzzi or clothesline door opens and it's dark outside
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.master_bedroom_jacuzzi_door
+  alias: Lights - Master Bedroom Jacuzzi or Clothesline Door Triggers
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.master_bedroom_jacuzzi_door
     to: 'on'
-  - platform: state
-    entity_id: binary_sensor.master_bedroom_clothesline_door
+    trigger: state
+  - entity_id: binary_sensor.master_bedroom_clothesline_door
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.dark_outside
     state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       area_id: master_bedroom
-  - service: light.turn_on
-    data: {}
+    action: light.turn_on
+    enabled: false
+  - data: {}
     target:
       entity_id:
       - light.exterior_hot_tub_floodlight
+    action: light.turn_on
   mode: single
 - id: '1745270000007'
-  alias: Master Bathroom Door Triggers Pool Lights
-  description: Turn on master bathroom and pool exterior lights when bathroom door opens and it's dark outside
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.master_bathroom_door
+  alias: Lights - Master Bathroom Door Trigger
+  description: Turn on master bathroom and pool exterior lights when bathroom door
+    opens and it's dark outside
+  triggers:
+  - entity_id: binary_sensor.master_bathroom_door
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.dark_outside
     state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       area_id: master_bathroom
-  - service: light.turn_on
-    data: {}
+    action: light.turn_on
+    enabled: false
+  - data: {}
     target:
       entity_id:
       - light.exterior_pool_flood_lights
+    action: light.turn_on
   mode: single
 - id: '1745270000008'
-  alias: Living Room Back Slider Triggers Exterior Lights
-  description: Turn on living room and backyard exterior lights when slider opens and it's dark outside
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.living_room_back_slider
+  alias: Lights - Living Room Back Slider
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.living_room_back_slider
     to: 'on'
-  condition:
+    trigger: state
+  conditions:
   - condition: state
     entity_id: binary_sensor.dark_outside
     state: 'on'
-  action:
-  - service: light.turn_on
-    data: {}
+  actions:
+  - data: {}
     target:
       area_id: living_room
-  - service: light.turn_on
-    data: {}
+    action: light.turn_on
+  - data: {}
     target:
       entity_id:
       - light.exterior_backyard_floodlight
       - light.exterior_family_room_flood_lights
+    action: light.turn_on
   mode: single
+- id: '1761403075954'
+  alias: Lights - Front Door Trigger
+  description: ''
+  triggers:
+  - entity_id: binary_sensor.front_door
+    to: 'on'
+    trigger: state
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  actions:
+  - data: {}
+    target:
+      area_id: living_room
+    action: light.turn_on
+  - data: {}
+    target:
+      entity_id:
+      - light.exterior_dog_run_lights
+      - light.exterior_parking_flood_light
+      - light.exterior_porch_sconces
+    action: light.turn_on
+  mode: single
+- id: '1762487274957'
+  alias: Keep backyard lit
+  description: ''
+  triggers:
+  - trigger: time_pattern
+    hours: '*'
+    minutes: /5
+    seconds: '0'
+  conditions:
+  - condition: state
+    entity_id: binary_sensor.dark_outside
+    state: 'on'
+  actions:
+  - action: light.turn_on
+    metadata: {}
+    data: {}
+    target:
+      entity_id:
+      - light.exterior_dog_run_lights
+      - light.exterior_backyard_floodlight
+  mode: single
+- id: '1764808805575'
+  alias: Alert - Amelia Crying
+  description: ''
+  triggers:
+  - entity_id:
+    - binary_sensor.e1_pro_baby_crying
+    to: 'on'
+    trigger: state
+  conditions: []
+  actions:
+  - action: notify.mobile_app_iphone
+    data:
+      title: Amelia is crying!
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+      message: Amelia is crying!
+  - action: notify.mobile_app_alyssas_iphone_2
+    data:
+      message: Amelia is crying!
+      title: Amelia is crying!
+      data:
+        push:
+          sound:
+            name: default
+            critical: 1
+            volume: 1
+    enabled: true
+  mode: queued
+  max: 10
+- id: '1733195400000'
+  alias: Snoo - Motion Control
+  description: Control Snoo intensity based on baby motion sensor
+  triggers:
+  - entity_id: binary_sensor.e1_pro_motion
+    to: 'on'
+    trigger: state
+  - type: turned_on
+    device_id: 7c4e17860c21baee355f69477260cb06
+    entity_id: 3dc88c91d68b642cfad6956f303922ac
+    domain: binary_sensor
+    trigger: device
+    enabled: false
+  conditions:
+  - alias: If intensity hasn't changed recently
+    condition: or
+    conditions:
+    - condition: device
+      device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+      domain: select
+      entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+      type: selected_option
+      option: baseline
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+    - condition: device
+      device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+      domain: select
+      entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+      type: selected_option
+      option: level1
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+    - condition: device
+      device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+      domain: select
+      entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+      type: selected_option
+      option: level2
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+    - condition: device
+      device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+      domain: select
+      entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+      type: selected_option
+      option: level4
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+  actions:
+  - choose:
+    - conditions:
+      - condition: state
+        entity_id: select.amelia_s_snoo_intensity
+        state: baseline
+      sequence:
+      - action: select.select_option
+        target:
+          entity_id: select.amelia_s_snoo_intensity
+        data:
+          option: level1
+    - conditions:
+      - condition: state
+        entity_id: select.amelia_s_snoo_intensity
+        state: level1
+      sequence:
+      - action: select.select_option
+        target:
+          entity_id: select.amelia_s_snoo_intensity
+        data:
+          option: level2
+    - conditions:
+      - condition: state
+        entity_id: select.amelia_s_snoo_intensity
+        state: level2
+      sequence:
+      - action: select.select_option
+        target:
+          entity_id: select.amelia_s_snoo_intensity
+        data:
+          option: level3
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 5
+      milliseconds: 0
+  mode: single
+  max_exceeded: silent
+- id: '1764824829201'
+  alias: Disable Owlet When Snoo Turns Up
+  description: ''
+  triggers:
+  - alias: Snoo Intensity - Level 2
+    device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    domain: select
+    entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+    type: current_option_changed
+    trigger: device
+    to: level2
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  - alias: Snoo Intensity - Level 3
+    device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    domain: select
+    entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+    type: current_option_changed
+    trigger: device
+    to: level3
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  - alias: Snoo Intensity - Level 4
+    device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    domain: select
+    entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+    type: current_option_changed
+    trigger: device
+    to: level4
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 30
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: 60faf975a195f2349e9da50fc12400e7
+    domain: switch
+  mode: single
+- id: '1764888851665'
+  alias: Baby Monitor - Privacy
+  description: ''
+  triggers:
+  - type: not_charging
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: f76ac252f199bd5cf5fd135473ebbd4a
+    domain: binary_sensor
+    trigger: device
+  - type: charging
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: f76ac252f199bd5cf5fd135473ebbd4a
+    domain: binary_sensor
+    trigger: device
+  conditions: []
+  actions:
+  - device_id: 7c4e17860c21baee355f69477260cb06
+    domain: button
+    entity_id: aa11c5826922026cb62ac6ae41e60e19
+    type: press
+  - if:
+    - type: is_charging
+      condition: device
+      device_id: aab888f3b2516449188058c445be2ae2
+      entity_id: f76ac252f199bd5cf5fd135473ebbd4a
+      domain: binary_sensor
+    then:
+    - type: turn_on
+      device_id: 7c4e17860c21baee355f69477260cb06
+      entity_id: 4ce416c34f813e63e7fc57eb85970530
+      domain: switch
+    - type: turn_off
+      device_id: 7c4e17860c21baee355f69477260cb06
+      entity_id: f151fcac6b546956bf714b0475009d1f
+      domain: switch
+    else:
+    - type: turn_off
+      device_id: 7c4e17860c21baee355f69477260cb06
+      entity_id: 4ce416c34f813e63e7fc57eb85970530
+      domain: switch
+    - type: turn_on
+      device_id: 7c4e17860c21baee355f69477260cb06
+      entity_id: f151fcac6b546956bf714b0475009d1f
+      domain: switch
+  mode: single
+- id: '1764891178706'
+  alias: Snoo - Start with Clips
+  description: ''
+  triggers:
+  - type: connected
+    device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    entity_id: 32f296dbe48a2c3f40a506f5a6cc195e
+    domain: binary_sensor
+    trigger: device
+  - type: connected
+    device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    entity_id: 69f4d8b67268b32231f6808ac763b8ac
+    domain: binary_sensor
+    trigger: device
+  conditions:
+  - type: is_connected
+    condition: device
+    device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    entity_id: 32f296dbe48a2c3f40a506f5a6cc195e
+    domain: binary_sensor
+  - type: is_connected
+    condition: device
+    device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    entity_id: 69f4d8b67268b32231f6808ac763b8ac
+    domain: binary_sensor
+  actions:
+  - device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    domain: select
+    entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+    type: select_option
+    option: level1
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 20
+      milliseconds: 0
+  - device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    domain: select
+    entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+    type: select_option
+    option: level2
+  mode: single
+- id: '1765021501677'
+  alias: Owlet - Turn On with Snoo
+  description: ''
+  triggers:
+  - device_id: 79da33f77080c0bd4b4ba8b1311dc2c7
+    domain: select
+    entity_id: 2af9681cf5a2d2e1bd1214b1837ada6e
+    type: current_option_changed
+    trigger: device
+    to: level1
+    for:
+      hours: 0
+      minutes: 1
+      seconds: 0
+  conditions:
+  - condition: device
+    type: is_off
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: 60faf975a195f2349e9da50fc12400e7
+    domain: switch
+  actions:
+  - type: turn_on
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: 60faf975a195f2349e9da50fc12400e7
+    domain: switch
+  mode: single
+- id: '1765021619052'
+  alias: Owlet - Start Off
+  description: ''
+  triggers:
+  - type: not_charging
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: f76ac252f199bd5cf5fd135473ebbd4a
+    domain: binary_sensor
+    trigger: device
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: 60faf975a195f2349e9da50fc12400e7
+    domain: switch
+  mode: single
+- id: '1765022010988'
+  alias: Owlet - Silence Disconnected
+  description: ''
+  triggers:
+  - type: sound
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: 56a6f79d88acb7350e4b6d13c9e59bf2
+    domain: binary_sensor
+    trigger: device
+  conditions: []
+  actions:
+  - type: turn_off
+    device_id: aab888f3b2516449188058c445be2ae2
+    entity_id: 60faf975a195f2349e9da50fc12400e7
+    domain: switch
+  mode: single
+- id: camera_motion_porch_person
+  alias: Camera Motion - Porch Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.porch_person
+      camera_entity: camera.porch_snapshots_clear
+      camera_name: Porch
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_porch_animal
+  alias: Camera Motion - Porch Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.porch_animal
+      camera_entity: camera.porch_snapshots_clear
+      camera_name: Porch
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_driveway_person
+  alias: Camera Motion - Driveway Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.driveway_person
+      camera_entity: camera.driveway_snapshots_clear
+      camera_name: Driveway
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_driveway_vehicle
+  alias: Camera Motion - Driveway Vehicle
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.driveway_vehicle
+      camera_entity: camera.driveway_snapshots_clear
+      camera_name: Driveway
+      sensor_name: Vehicle
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_driveway_animal
+  alias: Camera Motion - Driveway Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.driveway_animal
+      camera_entity: camera.driveway_snapshots_clear
+      camera_name: Driveway
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_dog_run_person
+  alias: Camera Motion - Dog Run Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.dog_run_person
+      camera_entity: camera.dog_run_snapshots_clear
+      camera_name: Dog Run
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_dog_run_animal
+  alias: Camera Motion - Dog Run Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.dog_run_animal
+      camera_entity: camera.dog_run_snapshots_clear
+      camera_name: Dog Run
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_shed_person
+  alias: Camera Motion - Shed Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.shed_person
+      camera_entity: camera.shed_snapshots_clear
+      camera_name: Shed
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_shed_animal
+  alias: Camera Motion - Shed Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.shed_animal
+      camera_entity: camera.shed_snapshots_clear
+      camera_name: Shed
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_field1_person
+  alias: Camera Motion - Field1 Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.field1_person
+      camera_entity: camera.field1_snapshots_clear
+      camera_name: Field1
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_field1_animal
+  alias: Camera Motion - Field1 Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.field1_animal
+      camera_entity: camera.field1_snapshots_clear
+      camera_name: Field1
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_field2_person
+  alias: Camera Motion - Field2 Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.field2_person
+      camera_entity: camera.field2_snapshots_clear
+      camera_name: Field2
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_field2_animal
+  alias: Camera Motion - Field2 Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.field2_animal
+      camera_entity: camera.field2_snapshots_clear
+      camera_name: Field2
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_backyard_person
+  alias: Camera Motion - Backyard Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.backyard_person
+      camera_entity: camera.backyard_snapshots_clear
+      camera_name: Backyard
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_backyard_animal
+  alias: Camera Motion - Backyard Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.backyard_animal
+      camera_entity: camera.backyard_snapshots_clear
+      camera_name: Backyard
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_chicken_coop_person
+  alias: Camera Motion - Chicken Coop Person
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.chicken_coop_person
+      camera_entity: camera.chicken_coop_snapshots_clear
+      camera_name: Chicken Coop
+      sensor_name: Person
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:warning
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 5
+- id: camera_motion_chicken_coop_animal
+  alias: Camera Motion - Chicken Coop Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.chicken_coop_animal
+      camera_entity: camera.chicken_coop_snapshots_clear
+      camera_name: Chicken Coop
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: camera_motion_living_room_animal
+  alias: Camera Motion - Living Room Animal
+  use_blueprint:
+    path: camera_motion_detection.yaml
+    input:
+      motion_sensor: binary_sensor.living_room_animal
+      camera_entity: camera.living_room_snapshots_clear
+      camera_name: Living Room
+      sensor_name: Animal
+      notification_services: notify.mobile_app_iphone,notify.mobile_app_alyssas_iphone_2
+      notification_icon: sfsymbols:notifications
+      send_notifications: true
+      is_critical: false
+      cooldown_minutes: 15
+- id: '1733800000000'
+  alias: Camera Notifications - Handle Silence Actions
+  description: Handles silence button presses from camera motion notifications
+  triggers:
+  - trigger: event
+    event_type: mobile_app_notification_action
+    event_data: {}
+    id: silence_action
+  conditions:
+  - condition: template
+    value_template: "{{ trigger.event.data.action is defined and trigger.event.data.action.startswith('silence-camera-') }}"
+  actions:
+  - variables:
+      action_parts: "{{ trigger.event.data.action.split('-') }}"
+      camera_name: "{{ action_parts[2] }}"
+      duration_minutes: "{{ action_parts[3] | int }}"
+      automation_pattern: "automation.camera_motion_{{ camera_name }}_"
+  - action: notify.mobile_app_iphone
+    data:
+      title: Camera Silenced
+      message: "{{ camera_name | replace('_', ' ') | title }} notifications silenced for {{ duration_minutes }} minutes"
+  - action: notify.mobile_app_alyssas_iphone_2
+    data:
+      title: Camera Silenced
+      message: "{{ camera_name | replace('_', ' ') | title }} notifications silenced for {{ duration_minutes }} minutes"
+  - action: automation.turn_off
+    target:
+      entity_id: "{{ integration_entities('automation') | select('match', automation_pattern) | list }}"
+  - delay:
+      minutes: "{{ duration_minutes }}"
+  - action: automation.turn_on
+    target:
+      entity_id: "{{ integration_entities('automation') | select('match', automation_pattern) | list }}"
+  - action: notify.mobile_app_iphone
+    data:
+      title: Camera Notifications Restored
+      message: "{{ camera_name | replace('_', ' ') | title }} notifications re-enabled"
+  - action: notify.mobile_app_alyssas_iphone_2
+    data:
+      title: Camera Notifications Restored
+      message: "{{ camera_name | replace('_', ' ') | title }} notifications re-enabled"
+  mode: parallel
+  max: 10
